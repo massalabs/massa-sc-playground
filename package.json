@@ -1,0 +1,29 @@
+{
+  "devDependencies": {
+    "@massalabs/as": "^1.0.2",
+    "@massalabs/massa-as-sdk": "^1.1.0",
+    "assemblyscript": "^0.21.6",
+    "@babel/cli": "^7.19.3",
+    "@babel/core": "^7.19.3",
+    "@babel/preset-env": "^7.19.3",
+    "browserify": "^17.0.0",
+    "watchify": "^4.0.0"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./build/release.js",
+      "types": "./build/release.d.ts"
+    }
+  },
+  "scripts": {
+    "asbuild:debug": "asc assembly/index.ts --target debug",
+    "asbuild:release": "asc assembly/index.ts --target release",
+    "asbuild": "npm run asbuild:debug && npm run asbuild:release",
+    "test": "node tests",
+    "start": "npx serve ."
+  },
+  "dependencies": {
+
+  }
+}

@@ -19,7 +19,8 @@
     "binaryen": "https://cdn.jsdelivr.net/npm/binaryen@110.0.0/index.js",
     "long": "https://cdn.jsdelivr.net/npm/long@5.2.0/index.js",
     "assemblyscript": "https://cdn.jsdelivr.net/npm/assemblyscript@0.21.5/dist/assemblyscript.js",
-    "assemblyscript/asc": "https://cdn.jsdelivr.net/npm/assemblyscript@0.21.5/dist/asc.js"
+    "assemblyscript/asc": "https://cdn.jsdelivr.net/npm/assemblyscript@0.21.5/dist/asc.js",
+    "@massalabs/massa-as-sdk":"https://cdn.jsdelivr.net/npm/@massalabs/massa-as-sdk@1.1.0/assembly/index.ts"
   }
 }
 </script>
@@ -28,6 +29,8 @@
 
     <script type="module">
         import asc from "assemblyscript/asc";
+
+
         let consoleValue = ""
 
         // Set the Console Value 
@@ -35,10 +38,10 @@
         function setConsoleValue(message) {
 
             if (message == "clear") {
+                consoleValue = ""
                 $("#console").val("")
             }
             else {
-
                 consoleValue = consoleValue + message
                 $("#console").val(consoleValue)
             }
@@ -49,9 +52,10 @@
 
 
         let codeCompile = ""
-        codeCompile = $("#input-code").val();
+
         window.compileAS = async function (codeCompile) {
-            setConsoleValue("clear")
+            codeCompile = $("#input-code").val();
+
             if (codeCompile == "") { codeCompile = "export function add(a: i32, b: i32): i32 {  return a + b;}" }
 
             const blob = new Blob([codeCompile], { type: "application/typescript" });
@@ -61,13 +65,14 @@
 
 
             // entryPoint of the compiled SC
-            let entryPoint = "main.ts"
 
+            // const files = { "main.ts": `export function test(): void {}` };
 
-
-
-            const files = { "main.ts": `export function test(): void {}` };
-            const { error, stdout, stderr } = await asc.main([entryPoint, "--textFile"], {
+            const files = {
+                "main.ts": codeCompile,
+                "node_modules/@massalabs/massa-as-sdk/assembly/index/index.ts": ""
+            };
+            const { error, stdout, stderr } = await asc.main(["main.ts", "--textFile"], {
                 readFile: (name, baseDir) => {
                     console.log("readFile: " + name + ", baseDir=" + baseDir);
                     setConsoleValue("readFile: " + name + ", baseDir=" + baseDir)
@@ -82,7 +87,8 @@
                     console.log("listFiles: " + dirname + ", baseDir=" + baseDir);
                     setConsoleValue("listFiles: " + dirname + ", baseDir=" + baseDir)
                     return [];
-                }
+                },
+
             });
             if (error) {
                 console.log("Compilation failed: " + error.message);

@@ -10,9 +10,17 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="stylesheet" href="index.css">
-    <script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1/dist/es-module-shims.js"></script>
-    <script src="https://code.jquery.com/jquery-1.12.4.min.js">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.css">
+    </link>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/theme/monokai.min.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.js">
     </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1/dist/es-module-shims.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js">    </script>
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/mode/javascript/javascript.min.js">
+        </script>
     <script type="importmap">
 {
   "imports": {
@@ -24,10 +32,26 @@
 }
 </script>
 
-    <script type="text/javascript" src="massa-as-sdk.js"></script>
-
     <script type="module">
         import asc from "assemblyscript/asc";
+
+
+        window.mirror = CodeMirror(document.querySelector('#codemirror'), {
+            lineNumbers: true,
+            tabSize: 2,
+            value: 'export function add(a: i32, b: i32): i32 {  return a + b;}',
+            mode: 'javascript',
+            theme: 'monokai'
+        });
+
+
+
+
+
+
+
+
+
 
 
         let consoleValue = ""
@@ -53,8 +77,8 @@
         let codeCompile = ""
 
         window.compileAS = async function (codeCompile) {
-            codeCompile = $("#input-code").val();
-
+            //   codeCompile = $("#input-code").val();
+            codeCompile = mirror.getValue()
             if (codeCompile == "") { codeCompile = "export function add(a: i32, b: i32): i32 {  return a + b;}" }
 
 
@@ -285,6 +309,7 @@ env.generateEvent(event);
 
         window.handleClickCompile = () => { compileAS(codeCompile) }
         window.handleClickClear = () => { setConsoleValue("clear") }
+        window.handleClickTest = () => { console.log(mirror.getValue()) }
 
     </script>
 
@@ -297,8 +322,8 @@ env.generateEvent(event);
 
         let code = ""
         function exportTSfromText(code) {
-
-            code = $("#input-code").val();
+            code = mirror.getValue()
+            //  code = $("#input-code").val();
             if (code == "") { code = "export function add(a: i32, b: i32): i32 {  return a + b;}" }
             blob = new Blob([code], { type: "application/typescript" });
             url = URL.createObjectURL(blob);
@@ -325,12 +350,15 @@ env.generateEvent(event);
     <div class="container">
         <h1>Massa SC Playground</h1>
         <div class="row">
-            <textarea id="input-code"
-                placeholder="export function add(a: i32, b: i32): i32 {  return a + b;}"></textarea>
+
+            <div id="codemirror"></div>
+            <!-- <textarea id="input-code"
+                placeholder="export function add(a: i32, b: i32): i32 {  return a + b;}"></textarea> -->
             <div class="column">
-                <button id="export-button" onclick=handleClickExport()>Export</button>
-                <button id="compile-button" onclick=handleClickCompile()>Compile</button>
-                <button id="clear-console" onclick=handleClickClear()> Clear Console</button>
+                <button class="button-34" id="export-button" onclick=handleClickExport()>Export</button>
+                <button class="button-34" id="compile-button" onclick=handleClickCompile()>Compile</button>
+                <button class="button-34" id="clear-console" onclick=handleClickClear()> Clear Console</button>
+                <button class="button-34" id="test" onclick=handleClickTest()>codemirror value</button>
             </div>
             <textarea disabled id="console" placeholder="console"></textarea>
         </div>

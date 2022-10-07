@@ -247,8 +247,10 @@ env.generateEvent(event);
 }`
 
 
+            const codeCompileFormatted = codeCompile.replace('@massalabs/massa-as-sdk', './@massalabs/massa-as-sdk.ts');
+
             const files = {
-                "main.ts": codeCompile,
+                "main.ts": codeCompileFormatted,
                 "@massalabs/massa-as-sdk.ts": massa
             };
             const { error, stdout, stderr } = await asc.main(["main.ts", "-t"], {

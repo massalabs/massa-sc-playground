@@ -3,6 +3,15 @@ body {
     margin: 0;
     padding: 0;
 }
+h1,
+h2,
+h3,
+p {
+    color: #ffffff;
+    font-family: -apple-system, system-ui, system-ui, "Segoe UI", Roboto, "Helvetica Neue",
+        "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji",
+        "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif;
+}
 
 .container {
     display: flex;
@@ -14,8 +23,6 @@ body {
     width: 100%;
     min-height: 100vh;
     overflow: hidden;
-    padding-left: 8%;
-    padding-right: 8%;
 }
 
 button {
@@ -40,7 +47,6 @@ textarea {
 }
 
 h1 {
-    color: #ffffff;
     font-family: "Raleway", sans-serif;
     font-size: 62px;
     font-weight: 800;
@@ -58,6 +64,8 @@ h1 {
 .column {
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    text-align: center;
 }
 
 #console {
@@ -66,6 +74,11 @@ h1 {
     font-size: medium;
 }
 
+.file-format {
+    display: flex;
+    margin-left: 8px;
+    margin-top: 25px;
+}
 .button-34 {
     align-items: center;
     background-color: #0a66c2;
@@ -99,18 +112,18 @@ h1 {
     vertical-align: middle;
 }
 
-.button-18:hover,
-.button-18:focus {
+.button-34:hover,
+.button-34:focus {
     background-color: #16437e;
     color: #ffffff;
 }
 
-.button-18:active {
+.button-34:active {
     background: #09223b;
     color: rgb(255, 255, 255, 0.7);
 }
 
-.button-18:disabled {
+.button-34:disabled {
     cursor: not-allowed;
     background: rgba(0, 0, 0, 0.08);
     color: rgba(0, 0, 0, 0.3);

@@ -35,6 +35,7 @@
     <script type="module">
         import asc from "assemblyscript/asc";
 
+        window.compiledFiled = ""
 
         window.mirror = CodeMirror(document.querySelector('#codemirror'), {
             lineNumbers: true,
@@ -77,18 +78,8 @@
         let codeCompile = ""
 
         window.compileAS = async function (codeCompile) {
-            //   codeCompile = $("#input-code").val();
             codeCompile = mirror.getValue()
             if (codeCompile == "") { codeCompile = "export function add(a: i32, b: i32): i32 {  return a + b;}" }
-
-
-            const blob = new Blob([codeCompile], { type: "application/typescript" });
-            console.log("blob ", blob)
-            const url = URL.createObjectURL(blob);
-            console.log("url ", url)
-
-
-
             let massa = `export namespace env {
 
 // @ts-ignore
@@ -303,13 +294,14 @@ env.generateEvent(event);
             } else {
                 console.log(stdout.toString());
                 setConsoleValue(stdout.toString())
+                compiledFiled = stdout.toString()
             }
         }
 
 
         window.handleClickCompile = () => { compileAS(codeCompile) }
         window.handleClickClear = () => { setConsoleValue("clear") }
-        window.handleClickTest = () => { console.log(mirror.getValue()) }
+
 
     </script>
 
@@ -323,7 +315,6 @@ env.generateEvent(event);
         let code = ""
         function exportTSfromText(code) {
             code = mirror.getValue()
-            //  code = $("#input-code").val();
             if (code == "") { code = "export function add(a: i32, b: i32): i32 {  return a + b;}" }
             blob = new Blob([code], { type: "application/typescript" });
             url = URL.createObjectURL(blob);
@@ -334,9 +325,20 @@ env.generateEvent(event);
         }
         const handleClickExport = () => { exportTSfromText(code) }
 
+        function exportCompiledFile() {
 
+            if (compiledFiled == "") { console.log("no compiled filed") }
+            else {
+                blob = new Blob([compiledFiled], { type: "text/plain" });
+                url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.download = "yourCompiledCode.wat";
+                link.href = url;
+                link.click();
+            }
+        }
 
-
+        const handleClickExportCompiled = () => { exportCompiledFile() }
 
 
     </script>
@@ -355,10 +357,11 @@ env.generateEvent(event);
             <!-- <textarea id="input-code"
                 placeholder="export function add(a: i32, b: i32): i32 {  return a + b;}"></textarea> -->
             <div class="column">
-                <button class="button-34" id="export-button" onclick=handleClickExport()>Export</button>
+                <button class="button-34" id="export-button" onclick=handleClickExport()>Export Input</button>
                 <button class="button-34" id="compile-button" onclick=handleClickCompile()>Compile</button>
                 <button class="button-34" id="clear-console" onclick=handleClickClear()> Clear Console</button>
-                <button class="button-34" id="test" onclick=handleClickTest()>codemirror value</button>
+                <button class="button-34" id="export-button" onclick=handleClickExportCompiled()>Export Compiled
+                    File</button>
             </div>
             <textarea disabled id="console" placeholder="console"></textarea>
         </div>

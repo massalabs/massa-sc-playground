@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MASSA PLAYGROUND</title>
+    <meta name="description" content="Massa SC Playground.">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/theme/monokai.min.css">
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.js"></script>
+    <script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1/dist/es-module-shims.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/mode/javascript/javascript.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/prettier@2.7.1/standalone.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/prettier@2.7.1/esm/parser-typescript.mjs"></script>
+    <script type="importmap">
+{
+  "imports": {
+    "binaryen": "https://cdn.jsdelivr.net/npm/binaryen@110.0.0/index.js",
+    "long": "https://cdn.jsdelivr.net/npm/long@5.2.0/index.js",
+    "assemblyscript": "https://cdn.jsdelivr.net/npm/assemblyscript@0.21.5/dist/assemblyscript.js",
+    "assemblyscript/asc": "https://cdn.jsdelivr.net/npm/assemblyscript@0.21.5/dist/asc.js",
+    "parser-typescript" :  "https://unpkg.com/prettier@2.7.1/esm/parser-typescript.mjs",
+    "prettier" :  "https://unpkg.com/prettier@2.7.1/standalone.js"
+
+  }
+}
+</script>
+
+    <script type="module">
+        import asc from "assemblyscript/asc";
+        import parserTypeScript from "parser-typescript"
+
+
+        window.compiledFiled = ""
+
+        window.mirror = CodeMirror(document.querySelector('#codemirror'), {
+            lineNumbers: true,
+            tabSize: 2,
+            value: 'export function add(a: i32, b: i32): i32 {  return a + b;}',
+            mode: 'javascript',
+            theme: 'monokai'
+        });
+
+
+        window.formatCode = () => {
+            mirror.setValue(prettier.format(mirror.getValue(), { semi: false, parser: "typescript", plugins: [parserTypeScript] }))
+        }
+
+
+        let consoleValue = ""
+
+        // Set the Console Value 
+
+        function setConsoleValue(message) {
+
+            if (message == "clear") {
+                consoleValue = ""
+                $("#console").val("")
+            }
+            else {
+                consoleValue = consoleValue + message
+                $("#console").val(consoleValue)
+            }
+        }
+
+
+        // Compile Smart Contract 
+
+
+        let codeCompile = ""
+
+        window.compileAS = async function (codeCompile) {
+            codeCompile = mirror.getValue()
+            if (codeCompile == "") { codeCompile = "export function add(a: i32, b: i32): i32 {  return a + b;}" }
+            let massa = `export namespace env {
+
+// @ts-ignore
+@external("massa", "assembly_script_print")
+export declare function print(message: string): void
+
+// @ts-ignore
+@external("massa", "assembly_script_call")
+export declare function call(
+    address: string,
+    func: string,
+    param: string,
+    coins: u64): string
+
+// @ts-ignore
+@external("massa", "assembly_script_get_remaining_gas")
+export declare function remainingGas(): u64
+
+// @ts-ignore
+@external("massa", "assembly_script_create_sc")
+export declare function createSC(bytecode: string): string
+
+// @ts-ignore
+@external("massa", "assembly_script_set_data")
+export declare function set(
+    key: string,
+    value: string): void;
+
+// @ts-ignore
+@external("massa", "assembly_script_set_data_for")
+export declare function setOf(
+    address: string,
+    key: string,
+    value: string): void;
+
+// @ts-ignore
+@external("massa", "assembly_script_get_data")
+export declare function get(key: string): string;
+
+// @ts-ignore
+@external("massa", "assembly_script_get_data_for")
+export declare function getOf(
+    address: string,
+    key: string): string;
+
+// @ts-ignore
+@external("massa", "assembly_script_delete_data")
+export declare function del(key: string): void
+
+// @ts-ignore
+@external("massa", "assembly_script_delete_data_for")
+export declare function deleteOf(
+    address: string,
+    key: string): void
+
+// @ts-ignore
+@external("massa", "assembly_script_append_data")
+export declare function append(
+    key: string,
+    value: string): void
+
+// @ts-ignore
+@external("massa", "assembly_script_append_data_for")
+export declare function appendOf(
+    address: string,
+    key: string,
+    value: string): void
+
+// @ts-ignore
+@external("massa", "assembly_script_has_data")
+export declare function has(key: string): bool;
+
+// @ts-ignore
+@external("massa", "assembly_script_has_data_for")
+export declare function hasOf(
+    address: string,
+    key: string): bool;
+
+// @ts-ignore
+@external("massa", "assembly_script_get_owned_addresses")
+export declare function ownedAddresses(): string;
+
+// @ts-ignore
+@external("massa", "assembly_script_get_call_stack")
+export declare function callStack(): string;
+
+// @ts-ignore
+@external("massa", "assembly_script_generate_event")
+export declare function generateEvent(event: string): void;
+
+// @ts-ignore
+@external("massa", "assembly_script_transfer_coins")
+export declare function transferCoins(
+    to: string, amount: u64): void;
+
+// @ts-ignore
+@external("massa", "assembly_script_transfer_coins_for")
+export declare function transferCoinsOf(
+    from: string, to: string, amount: u64): void;
+
+// @ts-ignore
+@external("massa", "assembly_script_get_balance")
+export declare function balance(): u64;
+
+// @ts-ignore
+@external("massa", "assembly_script_get_balance_for")
+export declare function balanceOf(address: string): u64;
+
+// @ts-ignore
+@external("massa", "assembly_script_get_call_coins")
+export declare function callCoins(): u64;
+
+// @ts-ignore
+@external("massa", "assembly_script_hash")
+export declare function toBase58(data: string): string;
+
+// @ts-ignore
+@external("massa", "assembly_script_signature_verify")
+export declare function isSignatureValid(
+    digest: string,
+    signature: string,
+    publicKey: string): bool;
+
+// @ts-ignore
+@external("massa", "assembly_script_address_from_public_key")
+export declare function publicKeyToAddress(
+    publicKey: string): string;
+
+// @ts-ignore
+@external("massa", "assembly_script_get_time")
+export declare function time(): u64;
+
+// @ts-ignore
+@external("massa", "assembly_script_unsafe_random")
+export declare function unsafeRandom(): i64;
+
+// @ts-ignore
+@external("massa", "assembly_script_send_message")
+export declare function sendMessage(
+    address: string, handler: string,
+    validityStartPeriod: u64, validityStartThread: u8,
+    validityEndPeriod: u64, validityEndThread: u8,
+    maxGas: u64, gasPrice: u64, coins: u64,
+    data: string): void;
+
+// @ts-ignore
+@external("massa", "assembly_script_get_current_period")
+export declare function currentPeriod(): u64;
+
+// @ts-ignore
+@external("massa", "assembly_script_get_current_thread")
+export declare function currentThread(): u8;
+
+// @ts-ignore
+@external("massa", "assembly_script_set_bytecode")
+export declare function setBytecode(bytecode: string): void;
+
+// @ts-ignore
+@external("massa", "assembly_script_set_bytecode_for")
+export declare function setBytecodeOf(
+    address: string,
+    bytecode: string): void;
+
+// @ts-ignore
+@external("massa", "assembly_script_get_op_keys")
+export declare function getOpKeys(): StaticArray<u8>;
+
+// @ts-ignore
+@external("massa", "assembly_script_has_op_key")
+export declare function hasOpKey(key: StaticArray<u8>): StaticArray<u8>;
+
+// @ts-ignore
+@external("massa", "assembly_script_get_op_data")
+export declare function getOpData(key: StaticArray<u8>): StaticArray<u8>;
+}
+
+
+export function generateEvent(event: string): void {
+env.generateEvent(event);
+}`
+
+
+            const codeCompileFormatted = codeCompile.replace('@massalabs/massa-as-sdk', './@massalabs/massa-as-sdk.ts');
+
+            const files = {
+                "main.ts": codeCompileFormatted,
+                "@massalabs/massa-as-sdk.ts": massa
+            };
+            const { error, stdout, stderr } = await asc.main(["main.ts", "-t"], {
+                readFile: (name, baseDir) => {
+                    console.log("readFile: " + name + ", baseDir=" + baseDir);
+                    setConsoleValue("readFile: " + name + ", baseDir=" + baseDir)
+                    if (Object.prototype.hasOwnProperty.call(files, name)) return files[name];
+                    return null;
+                },
+                writeFile: (name, data, baseDir) => {
+                    console.log("writeFile: " + name + ", baseDir=" + baseDir);
+                    setConsoleValue("writeFile: " + name + ", baseDir=" + baseDir)
+                },
+                listFiles: (dirname, baseDir) => {
+                    console.log("listFiles: " + dirname + ", baseDir=" + baseDir);
+                    setConsoleValue("listFiles: " + dirname + ", baseDir=" + baseDir)
+                    return [];
+                },
+
+            });
+            if (error) {
+                console.log("Compilation failed: " + error.message);
+                setConsoleValue("Compilation failed: " + error.message)
+                console.log(stderr.toString());
+                setConsoleValue(stderr.toString())
+            } else {
+                console.log(stdout.toString());
+                setConsoleValue(stdout.toString())
+                compiledFiled = stdout.toString()
+            }
+        }
+
+
+        window.handleClickCompile = () => { compileAS(codeCompile) }
+        window.handleClickClear = () => { setConsoleValue("clear") }
+        window.handleClickFormat = () => formatCode();
+
+    </script>
+
+    <script>
+
+
+        //Exporting written file
+
+
+
+        let code = ""
+        function exportTSfromText(code) {
+            code = mirror.getValue()
+            if (code == "") { code = "export function add(a: i32, b: i32): i32 {  return a + b;}" }
+            blob = new Blob([code], { type: "application/typescript" });
+            url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.download = "code.ts";
+            link.href = url;
+            link.click();
+        }
+        const handleClickExport = () => { exportTSfromText(code) }
+
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Massa SC Playground</h1>
+        <div class="row">
+
+            <div id="codemirror"></div>
+            <!-- <textarea id="input-code"
+                placeholder="export function add(a: i32, b: i32): i32 {  return a + b;}"></textarea> -->
+            <div class="column">
+                <button class="button-34" id="export-button" onclick=handleClickExport()>Export Input</button>
+                <button class="button-34" id="compile-button" onclick=handleClickCompile()>Compile</button>
+                <button class="button-34" id="clear-console" onclick=handleClickClear()> Clear Console</button>
+                <button class="button-34" id="export-button" onclick=handleClickExportCompiled()>Export Compiled
+                    File</button>
+                <button class="button-34" id="export-button" onclick=handleClickFormat()>Format Code</button>
+
+            </div>
+            <textarea disabled id="console" placeholder="console"></textarea>
+        </div>
+
+
+    </div>
+</body>

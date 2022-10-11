@@ -27,6 +27,7 @@
     <script type="text/javascript" src="https://unpkg.com/prettier@2.7.1/standalone.js"></script>
     <script type="text/javascript" src="https://unpkg.com/prettier@2.7.1/esm/parser-typescript.mjs"></script>
     <script type="text/javascript" src="massa-as-sdk.js"></script>
+    <script type="text/javascript" src="index.js"></script>
     <script type="importmap">
             {
                 "imports": {
@@ -43,7 +44,6 @@
     <script type="module">
         import asc from "assemblyscript/asc";
         import parserTypeScript from "parser-typescript";
-
         window.compiledFiled = "";
         let initMirrorValue =
             "export function add(a: i32, b: i32): i32 {  return a + b;}";
@@ -64,9 +64,7 @@
             tabSize: 2,
             value: initMirrorValue,
             mode: "javascript",
-            theme: "monokai",
-
-
+            theme: "monokai"
         });
         mirror.setSize("100%", "100%");
         window.formatCode = () => {
@@ -188,26 +186,7 @@
             localStorage.setItem("main.ts", ""), mirror.setValue("");
         };
     </script>
-    <script>
-        //Exporting written file
-        let code = "";
-        function exportTSfromText(code) {
-            code = mirror.getValue();
-            if (code == "") {
-                code =
-                    "export function add(a: i32, b: i32): i32 {  return a + b;}";
-            }
-            blob = new Blob([code], { type: "application/typescript" });
-            url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.download = "code.ts";
-            link.href = url;
-            link.click();
-        }
-        const handleClickExport = () => {
-            exportTSfromText(code);
-        };
-    </script>
+
 </head>
 
 <body>

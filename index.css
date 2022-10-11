@@ -8,10 +8,9 @@ h2,
 h3,
 p {
     color: #ffffff;
-    font-family: -apple-system, system-ui, system-ui, "Segoe UI", Roboto,
-        "Helvetica Neue", "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell,
-        "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
-        "Lucida Grande", Helvetica, Arial, sans-serif;
+    font-family: -apple-system, system-ui, system-ui, "Segoe UI", Roboto, "Helvetica Neue",
+        "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji",
+        "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 .container {
@@ -33,20 +32,19 @@ button {
 }
 
 textarea {
-
     resize: none;
     border: none;
 }
 
-#codemirror { 
+#codemirror {
     height: 450px;
 }
 
-.codemirror-container{
+.codemirror-container {
     position: absolute;
     width: calc(100vw - 250px);
-    left : 250px;
-    top : 0px;
+    left: 250px;
+    top: 0px;
 
     overflow: hidden;
 }
@@ -80,8 +78,8 @@ h1 {
     position: absolute;
     border-top: 2px solid white;
     height: calc(97vh - 450px);
-    left : 250px;
-    top : 450px;
+    left: 250px;
+    top: 450px;
     width: calc(100vw - 250px);
 }
 
@@ -99,10 +97,9 @@ h1 {
     color: #ffffff;
     cursor: pointer;
     display: inline-flex;
-    font-family: -apple-system, system-ui, system-ui, "Segoe UI", Roboto,
-        "Helvetica Neue", "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell,
-        "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
-        "Lucida Grande", Helvetica, Arial, sans-serif;
+    font-family: -apple-system, system-ui, system-ui, "Segoe UI", Roboto, "Helvetica Neue",
+        "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji",
+        "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif;
     font-size: 16px;
     font-weight: 600;
     justify-content: center;
@@ -129,49 +126,45 @@ h1 {
     color: #ffffff;
 }
 
-.file-card{
-
+.file-card {
     display: flex;
-    border : 1px solid black;
-    margin-right: 16px ;
-
- 
+    border: 1px solid black;
+    margin-right: 16px;
 }
 
-.file1{
-   width: 56px;
-   background: grey;
+.file1 {
+    width: 56px;
+    background: grey;
 }
 
-.control-panel{
-height: 100%;
-position: absolute;
-left: 50px;
-top: 0px;
-height: 100%;
-width: 200px;
-background: #343a40
-
+.control-panel {
+    height: 100%;
+    position: absolute;
+    left: 50px;
+    top: 0px;
+    height: 100%;
+    width: 200px;
+    background: #343a40;
 }
 
 .icon-bar {
     width: 50px;
     background-color: #555;
     position: absolute;
-    top : 0 ;
-    left : 0;
+    top: 0;
+    left: 0;
     height: 100%;
-  }
-  
-  .icon-bar a {
+}
+
+.icon-bar a {
     display: block;
     text-align: center;
     padding: 16px;
     transition: all 0.3s ease;
     color: white;
     font-size: 16px;
-  }
-  
-  .icon-bar a:hover {
+}
+
+.icon-bar a:hover {
     background-color: #000;
-  }
+}

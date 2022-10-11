@@ -1,4 +1,4 @@
-export default function Massa() {
+function Massa() {
     return `export namespace env {
 
         // @ts-ignore
@@ -882,7 +882,7 @@ export default function Massa() {
     }
     
     /**
-     * Transfers SCE coins of the `from` address to the `to` address.
+     * Transfers SCE coins of the from address to the to address.
      *
      * @param {Address} from
      * @param {Address} to

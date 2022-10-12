@@ -1,4 +1,4 @@
-function Massa() {
+export default function () {
     return `export namespace env {
 
         // @ts-ignore

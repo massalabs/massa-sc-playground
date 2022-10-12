@@ -18,6 +18,19 @@
 
     <!-- Bootstrap Font Icon CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <script type="importmap">
+        {
+          "imports": {
+            "binaryen": "https://cdn.jsdelivr.net/npm/binaryen@110.0.0/index.js",
+            "long": "https://cdn.jsdelivr.net/npm/long@5.2.0/index.js",
+            "assemblyscript": "https://cdn.jsdelivr.net/npm/assemblyscript@0.21.5/dist/assemblyscript.js",
+            "assemblyscript/asc": "https://cdn.jsdelivr.net/npm/assemblyscript@0.21.5/dist/asc.js",
+            "parser-typescript" :  "https://unpkg.com/prettier@2.7.1/esm/parser-typescript.mjs",
+            "prettier" :  "https://unpkg.com/prettier@2.7.1/standalone.js"
+        
+          }
+        }
+        </script>
     <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.js"></script>
     <script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1/dist/es-module-shims.js"></script>
@@ -27,147 +40,8 @@
     <script type="text/javascript" src="https://unpkg.com/prettier@2.7.1/standalone.js"></script>
     <script type="text/javascript" src="https://unpkg.com/prettier@2.7.1/esm/parser-typescript.mjs"></script>
 
-    <script type="text/javascript" src="massa-as-sdk.js"></script>
-    <script type="importmap">
-{
-  "imports": {
-    "binaryen": "https://cdn.jsdelivr.net/npm/binaryen@110.0.0/index.js",
-    "long": "https://cdn.jsdelivr.net/npm/long@5.2.0/index.js",
-    "assemblyscript": "https://cdn.jsdelivr.net/npm/assemblyscript@0.21.5/dist/assemblyscript.js",
-    "assemblyscript/asc": "https://cdn.jsdelivr.net/npm/assemblyscript@0.21.5/dist/asc.js",
-    "parser-typescript" :  "https://unpkg.com/prettier@2.7.1/esm/parser-typescript.mjs",
-    "prettier" :  "https://unpkg.com/prettier@2.7.1/standalone.js"
-
-  }
-}
-</script>
-
-    <script type="module">
-        import asc from "assemblyscript/asc";
-        import parserTypeScript from "parser-typescript"
-
-        window.compiledFiled = ""
-
-        let initMirrorValue = "export function add(a: i32, b: i32): i32 {  return a + b;}"
-
-        if (localStorage.getItem('main.ts') != null) { initMirrorValue = localStorage.getItem('main.ts') }
-
-
-        window.mirror = CodeMirror(document.querySelector('#codemirror'), {
-            lineNumbers: true,
-            tabSize: 2,
-            value: initMirrorValue,
-            mode: 'javascript',
-            theme: 'monokai'
-        });
-
-        mirror.setSize("100%", "100%")
-        window.formatCode = () => {
-            mirror.setValue(prettier.format(mirror.getValue(), { semi: false, parser: "typescript", plugins: [parserTypeScript] }))
-
-        }
-
-        mirror.setSize("100%", "100%")
-        let consoleValue = ""
-
-        // Set the Console Value 
-
-        function setConsoleValue(message) {
-
-            if (message == "clear") {
-                consoleValue = ""
-                $("#console").val("")
-            }
-            else {
-                consoleValue = consoleValue + message
-                $("#console").val(consoleValue)
-            }
-        }
-
-
-        // Compile Smart Contract 
-
-
-        let codeCompile = ""
-
-        window.compileAS = async function (codeCompile) {
-            codeCompile = mirror.getValue()
-            if (codeCompile == "") { codeCompile = "export function add(a: i32, b: i32): i32 {  return a + b;}" }
-            let massa = Massa()
-
-
-            const codeCompileFormatted = codeCompile.replace('@massalabs/massa-as-sdk', './@massalabs/massa-as-sdk.ts');
-
-            const files = {
-                "main.ts": codeCompileFormatted,
-                "@massalabs/massa-as-sdk.ts": massa
-            };
-            const { error, stdout, stderr } = await asc.main(["main.ts", "-t"], {
-                readFile: (name, baseDir) => {
-                    console.log("readFile: " + name + ", baseDir=" + baseDir);
-                    setConsoleValue("readFile: " + name + ", baseDir=" + baseDir)
-                    if (Object.prototype.hasOwnProperty.call(files, name)) return files[name];
-                    return null;
-                },
-                writeFile: (name, data, baseDir) => {
-                    console.log("writeFile: " + name + ", baseDir=" + baseDir);
-                    setConsoleValue("writeFile: " + name + ", baseDir=" + baseDir)
-                },
-                listFiles: (dirname, baseDir) => {
-                    console.log("listFiles: " + dirname + ", baseDir=" + baseDir);
-                    setConsoleValue("listFiles: " + dirname + ", baseDir=" + baseDir)
-                    return [];
-                },
-
-            });
-            if (error) {
-                console.log("Compilation failed: " + error.message);
-                setConsoleValue("Compilation failed: " + error.message)
-                console.log(stderr.toString());
-                setConsoleValue(stderr.toString())
-            } else {
-                console.log(stdout.toString());
-                setConsoleValue(stdout.toString())
-                compiledFiled = stdout.toString()
-            }
-        }
-
-        mirror.on("change", function (cm, change) { localStorage.setItem('main.ts', mirror.getValue()) })
-
-
-        window.handleClickCompile = () => { compileAS(codeCompile) }
-        window.handleClickClear = () => { setConsoleValue("clear") }
-        window.handleClickFormat = () => formatCode();
-        window.handleClickDiscard = () => { localStorage.setItem('main.ts', ""), mirror.setValue("") }
-
-    </script>
-
-    <script>
-
-
-        //Exporting written file
-
-
-
-        let code = ""
-        function exportTSfromText(code) {
-            code = mirror.getValue()
-            if (code == "") { code = "export function add(a: i32, b: i32): i32 {  return a + b;}" }
-            blob = new Blob([code], { type: "application/typescript" });
-            url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.download = "code.ts";
-            link.href = url;
-            link.click();
-        }
-        const handleClickExport = () => { exportTSfromText(code) }
-
-
-
-
-
-
-    </script>
+    <script type="module" src="module.js"></script>
+    <script type="text/javascript" src="index.js"></script>
 </head>
 
 <body>

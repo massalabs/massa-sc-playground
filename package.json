@@ -1,0 +1,22 @@
+{
+  "name": "massa-sc-playground",
+  "version": "1.0.0",
+  "description": "Assemblyscript playground that allows to compile &amp; play with smart contracts",
+  "main": "index.js",
+  "scripts": {
+    "serve": "serve"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/massalabs/massa-sc-playground.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/massalabs/massa-sc-playground/issues"
+  },
+  "homepage": "https://github.com/massalabs/massa-sc-playground#readme",
+  "devDependencies": {
+    "serve": "^14.0.1"
+  }
+}

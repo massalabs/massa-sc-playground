@@ -1,7 +1,7 @@
 function Envy() {
-    return ` 
+  return ` 
     @external("env", "log")
-    export declare function log(message: string): void
+    export declare function log(message: ArrayBuffer): void
   
     // / <reference path="./global.d.ts" />
     export function _startTests(): u32 {
@@ -22,9 +22,7 @@ function Envy() {
       // const written_ptr = memory.data(8);
       // //fd_write(1, iov, 1, written_ptr);
 
-      log("I'm a tesszzt");
-      log("I'm an other test");
-
+      log(String.UTF8.encode(str));
     }
     
     class TestNode {
@@ -77,7 +75,7 @@ function Envy() {
     @global function error(message:string): void {
       // const stdout = wasi_process.stderr;
 
-      // stdout.write(message);
+      write("Error:" + message);
 
     }
     

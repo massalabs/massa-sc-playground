@@ -66,28 +66,22 @@ window.compileAS = async function (codeCompile) {
     };
     const { error, stdout, stderr } = await asc.main(["main.ts", "-t"], {
         readFile: (name, baseDir) => {
-            console.log("readFile: " + name + ", baseDir=" + baseDir);
             setConsoleValue("readFile: " + name + ", baseDir=" + baseDir);
             if (Object.prototype.hasOwnProperty.call(files, name)) return files[name];
             return null;
         },
         writeFile: (name, data, baseDir) => {
-            console.log("writeFile: " + name + ", baseDir=" + baseDir);
             setConsoleValue("writeFile: " + name + ", baseDir=" + baseDir);
         },
         listFiles: (dirname, baseDir) => {
-            console.log("listFiles: " + dirname + ", baseDir=" + baseDir);
             setConsoleValue("listFiles: " + dirname + ", baseDir=" + baseDir);
             return [];
         },
     });
     if (error) {
-        console.log("Compilation failed: " + error.message);
         setConsoleValue("Compilation failed: " + error.message);
-        console.log(stderr.toString());
         setConsoleValue(stderr.toString());
     } else {
-        console.log(stdout.toString());
         setConsoleValue(stdout.toString());
         compiledFiled = stdout.toString();
     }

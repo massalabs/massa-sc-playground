@@ -3,16 +3,14 @@ import parserTypeScript from "parser-typescript";
 import Massa from "./massa-as-sdk.js";
 
 window.compiledFiled = "";
-let initMirrorValue =
-    "export function add(a: i32, b: i32): i32 {  return a + b;}";
+let initMirrorValue = "export function add(a: i32, b: i32): i32 {  return a + b;}";
 
 if (localStorage.getItem("main.ts") != null) {
     initMirrorValue = localStorage.getItem("main.ts");
 }
 
 window.DecodeUrl = (url) => {
-    if (url.lastIndexOf("?") != -1)
-        initMirrorValue = atob(url.substring(url.lastIndexOf("?") + 1));
+    if (url.lastIndexOf("?") != -1) initMirrorValue = atob(url.substring(url.lastIndexOf("?") + 1));
 };
 DecodeUrl(window.location.href);
 window.mirror = CodeMirror(document.querySelector("#codemirror"), {
@@ -52,8 +50,7 @@ let codeCompile = "";
 window.compileAS = async function (codeCompile) {
     codeCompile = mirror.getValue();
     if (codeCompile == "") {
-        codeCompile =
-            "export function add(a: i32, b: i32): i32 {  return a + b;}";
+        codeCompile = "export function add(a: i32, b: i32): i32 {  return a + b;}";
     }
     let massa = Massa();
 
@@ -68,8 +65,7 @@ window.compileAS = async function (codeCompile) {
     const { error, stdout, stderr } = await asc.main(["main.ts", "-t"], {
         readFile: (name, baseDir) => {
             setConsoleValue("readFile: " + name + ", baseDir=" + baseDir);
-            if (Object.prototype.hasOwnProperty.call(files, name))
-                return files[name];
+            if (Object.prototype.hasOwnProperty.call(files, name)) return files[name];
             return null;
         },
         writeFile: (name, data, baseDir) => {
@@ -97,6 +93,18 @@ window.ShareCode = () => {
     navigator.clipboard.writeText(window.location.href + "?" + encoded);
     // Alert the copied text
     alert("Link copied in clipboard");
+};
+
+window.exportCompiledCode = () => {
+    let blob = new Blob([compiledFiled], { type: "text/plain" });
+    let url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.download = "compiled.wat";
+    link.href = url;
+    link.click();
+};
+window.handleClickExportCompiled = () => {
+    exportCompiledCode();
 };
 
 window.handleClickShare = () => {

@@ -1,62 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>MASSA PLAYGROUND</title>
-    <meta name="description" content="Massa SC Playground.">
-    <link rel="icon" href="/favicon.ico">
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="stylesheet" href="index.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/theme/monokai.min.css">
-    <script type="importmap">
-        {
-          "imports": {
-            "binaryen": "https://cdn.jsdelivr.net/npm/binaryen@110.0.0/index.js",
-            "long": "https://cdn.jsdelivr.net/npm/long@5.2.0/index.js",
-            "assemblyscript": "https://cdn.jsdelivr.net/npm/assemblyscript@0.21.5/dist/assemblyscript.js",
-            "assemblyscript/asc": "https://cdn.jsdelivr.net/npm/assemblyscript@0.21.5/dist/asc.js",
-            "parser-typescript" :  "https://unpkg.com/prettier@2.7.1/esm/parser-typescript.mjs",
-            "prettier" :  "https://unpkg.com/prettier@2.7.1/standalone.js"        
-          }
-        }
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>MASSA PLAYGROUND</title>
+        <meta name="description" content="Massa SC Playground." />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="stylesheet" href="index.css" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/theme/monokai.min.css"
+        />
+        <script type="importmap">
+            {
+                "imports": {
+                    "binaryen": "https://cdn.jsdelivr.net/npm/binaryen@110.0.0/index.js",
+                    "long": "https://cdn.jsdelivr.net/npm/long@5.2.0/index.js",
+                    "assemblyscript": "https://cdn.jsdelivr.net/npm/assemblyscript@0.21.5/dist/assemblyscript.js",
+                    "assemblyscript/asc": "https://cdn.jsdelivr.net/npm/assemblyscript@0.21.5/dist/asc.js",
+                    "parser-typescript": "https://unpkg.com/prettier@2.7.1/esm/parser-typescript.mjs",
+                    "prettier": "https://unpkg.com/prettier@2.7.1/standalone.js"
+                }
+            }
         </script>
-    <script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.js"></script>
-    <script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1/dist/es-module-shims.js"></script>
-    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
-    <script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/mode/javascript/javascript.min.js"></script>
-    <script type="text/javascript" src="https://unpkg.com/prettier@2.7.1/standalone.js"></script>
-    <script type="text/javascript" src="https://unpkg.com/prettier@2.7.1/esm/parser-typescript.mjs"></script>
-    <script type="text/javascript" src="index.js"></script>
-    <script type="module" src="module.js"> </script>
+        <script
+            type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.js"
+        ></script>
+        <script
+            async
+            src="https://cdn.jsdelivr.net/npm/es-module-shims@1/dist/es-module-shims.js"
+        ></script>
+        <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+        <script
+            type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/mode/javascript/javascript.min.js"
+        ></script>
+        <script
+            type="text/javascript"
+            src="https://unpkg.com/prettier@2.7.1/standalone.js"
+        ></script>
+        <script
+            type="text/javascript"
+            src="https://unpkg.com/prettier@2.7.1/esm/parser-typescript.mjs"
+        ></script>
+        <script type="text/javascript" src="index.js"></script>
+        <script type="module" src="module.js"></script>
+    </head>
 
-</head>
-
-<body>
-    <div class="container">
-        <h1>Massa SC Playground</h1>
-        <div class="row">
-
-            <div id="codemirror"></div>
-            <!-- <textarea id="input-code"
+    <body>
+        <div class="container">
+            <h1>Massa SC Playground</h1>
+            <div class="row">
+                <div id="codemirror"></div>
+                <!-- <textarea id="input-code"
                 placeholder="export function add(a: i32, b: i32): i32 {  return a + b;}"></textarea> -->
-            <div class="column">
-                <button class="button-34" id="export-button" onclick=handleClickExport()>Export Input</button>
-                <button class="button-34" id="compile-button" onclick=handleClickCompile()>Compile</button>
-                <button class="button-34" id="clear-console" onclick=handleClickClear()> Clear Console</button>
-                <button class="button-34" id="export-button" onclick=handleClickExportCompiled()>Export Compiled
-                    File</button>
-                <button class="button-34" id="export-button" onclick=handleClickFormat()>Format Code</button>
-
+                <div class="column">
+                    <button class="button-34" id="export-button" onclick="handleClickExport()">
+                        Export Input
+                    </button>
+                    <button class="button-34" id="compile-button" onclick="handleClickCompile()">
+                        Compile
+                    </button>
+                    <button class="button-34" id="clear-console" onclick="handleClickClear()">
+                        Clear Console
+                    </button>
+                    <button
+                        class="button-34"
+                        id="export-button"
+                        onclick="handleClickExportCompiled()"
+                    >
+                        Export Compiled File
+                    </button>
+                    <button class="button-34" id="export-button" onclick="handleClickFormat()">
+                        Format Code
+                    </button>
+                </div>
+                <textarea disabled id="console" placeholder="console"></textarea>
             </div>
-            <textarea disabled id="console" placeholder="console"></textarea>
         </div>
-
-
-    </div>
-</body>
+    </body>
+</html>

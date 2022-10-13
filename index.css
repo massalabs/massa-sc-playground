@@ -32,18 +32,21 @@ button {
 }
 
 textarea {
-    min-width: 500px;
-    min-height: 300px;
-    margin-bottom: 20px;
     resize: none;
     border: none;
 }
 
 #codemirror {
-    min-width: 500px;
-    min-height: 300px;
-    margin-bottom: 20px;
-    resize: none;
+    height: 450px;
+}
+
+.codemirror-container {
+    position: absolute;
+    width: calc(100vw - 250px);
+    left: 250px;
+    top: 0px;
+
+    overflow: hidden;
 }
 
 h1 {
@@ -70,8 +73,14 @@ h1 {
 
 #console {
     background-color: black;
-    color: green;
+    color: grey;
     font-size: medium;
+    position: absolute;
+    border-top: 2px solid white;
+    height: calc(97vh - 450px);
+    left: 250px;
+    top: 450px;
+    width: calc(100vw - 250px);
 }
 
 .file-format {
@@ -115,4 +124,47 @@ h1 {
 .button-34:hover {
     background-color: #16437e;
     color: #ffffff;
+}
+
+.file-card {
+    display: flex;
+    border: 1px solid black;
+    margin-right: 16px;
+}
+
+.file1 {
+    width: 56px;
+    background: grey;
+}
+
+.control-panel {
+    height: 100%;
+    position: absolute;
+    left: 50px;
+    top: 0px;
+    height: 100%;
+    width: 200px;
+    background: #343a40;
+}
+
+.icon-bar {
+    width: 50px;
+    background-color: #555;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+}
+
+.icon-bar a {
+    display: block;
+    text-align: center;
+    padding: 16px;
+    transition: all 0.3s ease;
+    color: white;
+    font-size: 16px;
+}
+
+.icon-bar a:hover {
+    background-color: #000;
 }

@@ -17,6 +17,19 @@
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/theme/monokai.min.css"
         />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
+            integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        />
+
+        <!-- Bootstrap Font Icon CSS -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css"
+        />
         <script type="importmap">
             {
                 "imports": {
@@ -50,26 +63,22 @@
             type="text/javascript"
             src="https://unpkg.com/prettier@2.7.1/esm/parser-typescript.mjs"
         ></script>
+        <script type="text/javascript" src="massa-as-sdk.js"></script>
         <script type="text/javascript" src="index.js"></script>
         <script type="module" src="module.js"></script>
     </head>
 
     <body>
         <div class="container">
-            <h1>Massa SC Playground</h1>
-            <div class="row">
-                <div id="codemirror"></div>
-                <!-- <textarea id="input-code"
-                placeholder="export function add(a: i32, b: i32): i32 {  return a + b;}"></textarea> -->
+            <div class="icon-bar">
+                <a href="#"><i class="fa fa-file"></i></a>
+                <a href="#"><i class="fa fa-trowel"></i></a>
+                <a href="#"><i class="fa fa-share-nodes"></i></a>
+            </div>
+            <div class="control-panel">
                 <div class="column">
                     <button class="button-34" id="export-button" onclick="handleClickExport()">
                         Export Input
-                    </button>
-                    <button class="button-34" id="compile-button" onclick="handleClickCompile()">
-                        Compile
-                    </button>
-                    <button class="button-34" id="clear-console" onclick="handleClickClear()">
-                        Clear Console
                     </button>
                     <button
                         class="button-34"
@@ -78,12 +87,27 @@
                     >
                         Export Compiled File
                     </button>
+                    <button class="button-34" id="compile-button" onclick="handleClickCompile()">
+                        Compile
+                    </button>
+                    <button class="button-34" id="clear-console" onclick="handleClickClear()">
+                        Clear Console
+                    </button>
                     <button class="button-34" id="export-button" onclick="handleClickFormat()">
                         Format Code
                     </button>
+                    <button class="button-34" id="export-button" onclick="handleClickDiscard()">
+                        Remove File
+                    </button>
+                    <button class="button-34" id="export-button" onclick="handleClickShare()">
+                        Share
+                    </button>
                 </div>
-                <textarea disabled id="console" placeholder="console"></textarea>
             </div>
+            <div class="codemirror-container">
+                <div id="codemirror"></div>
+            </div>
+            <textarea disabled id="console" placeholder="console"></textarea>
         </div>
     </body>
 </html>

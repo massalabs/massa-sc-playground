@@ -1,4 +1,3 @@
-//Exporting written file
 let code = "";
 function exportTSfromText(code) {
     code = mirror.getValue();

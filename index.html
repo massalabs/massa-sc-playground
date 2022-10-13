@@ -26,20 +26,24 @@
                 "assemblyscript": "https://cdn.jsdelivr.net/npm/assemblyscript@0.21.5/dist/assemblyscript.js",
                 "assemblyscript/asc": "https://cdn.jsdelivr.net/npm/assemblyscript@0.21.5/dist/asc.js",
                 "parser-typescript": "https://unpkg.com/prettier@2.7.1/esm/parser-typescript.mjs",
-                "prettier": "https://unpkg.com/prettier@2.7.1/standalone.js"
+                "prettier": "https://unpkg.com/prettier@2.7.1/standalone.js",
+                "eslint4b-prebuilt": "https://cdn.jsdelivr.net/npm/eslint4b-prebuilt/dist/eslint4b.es.js"
             }
         }
     </script>
-    <script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.js"></script>
     <script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1/dist/es-module-shims.js"></script>
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
-    <script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/mode/javascript/javascript.min.js"></script>
+
+    <!-- codemirror -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/mode/javascript/javascript.min.js"></script>
+
+    <!-- prettier -->
     <script type="text/javascript" src="https://unpkg.com/prettier@2.7.1/standalone.js"></script>
     <script type="text/javascript" src="https://unpkg.com/prettier@2.7.1/esm/parser-typescript.mjs"></script>
+
+    <!-- internal -->
     <script type="text/javascript" src="massa-as-sdk.js"></script>
-    <script type="text/javascript" src="index.js"></script>
     <script type="module" src="module.js"></script>
 
 </head>
@@ -67,6 +71,9 @@
                 </button>
                 <button class="button-34" id="export-button" onclick="handleClickFormat()">
                     Format Code
+                </button>
+                <button class="button-34" id="export-button" onclick="handleClickLint()">
+                    Lint Code
                 </button>
                 <button class="button-34" id="export-button" onclick="handleClickDiscard()">
                     Remove File

@@ -4,7 +4,8 @@
   "description": "Assemblyscript playground that allows to compile &amp; play with smart contracts",
   "main": "index.js",
   "scripts": {
-    "serve": "serve"
+    "serve": "serve --no-clipboard",
+    "watch": "nodemon --exec npm run serve"
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,7 @@
   },
   "homepage": "https://github.com/massalabs/massa-sc-playground#readme",
   "devDependencies": {
+    "nodemon": "^2.0.20",
     "serve": "^14.0.1"
   }
 }

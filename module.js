@@ -1,9 +1,6 @@
 import asc from "assemblyscript/asc";
 import parserTypeScript from "parser-typescript";
 import Massa from "./massa-as-sdk.js";
-import Linter from "eslint4b-prebuilt";
-
-const linter = new Linter();
 
 window.compiledFiled = "";
 let initMirrorValue = "export function add(a: i32, b: i32): i32 {  return a + b;}";
@@ -93,8 +90,6 @@ mirror.on("change", async () => {
     const value = mirror.getValue();
 
     localStorage.setItem("main.ts", value);
-
-    applyLint(value);
 });
 
 window.ShareCode = () => {
@@ -127,36 +122,6 @@ window.handleClickClear = () => {
 };
 window.handleClickFormat = () => formatCode();
 
-window.handleClickLint = async () => {
-    applyLint(mirror.getValue());
-};
-
 window.handleClickDiscard = () => {
     localStorage.setItem("main.ts", ""), mirror.setValue("");
 };
-
-// Linter helpers:
-async function lint(sourceCode) {
-    return linter.verify(sourceCode, {
-        rules: (await (await fetch(".eslintrc.json")).json()).rules,
-    });
-}
-
-async function applyLint(value) {
-    mirror.clearGutter("error");
-    const errors = await lint(value);
-    for (const error of errors) {
-        mirror.setGutterMarker(error.line - 1, "error", makeMarker(error.message));
-    }
-}
-
-function makeMarker(msg) {
-    const marker = document.createElement("div");
-    marker.classList.add("error-marker");
-    marker.innerHTML = "&nbsp;";
-    const error = document.createElement("div");
-    error.innerHTML = msg;
-    error.classList.add("error-message");
-    marker.appendChild(error);
-    return marker;
-}

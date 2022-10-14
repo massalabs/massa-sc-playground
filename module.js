@@ -49,14 +49,19 @@ function formatCode(mirrors) {
 let mirrorContractValue;
 let mirrorTestValue;
 
-const mirrorContract = initCodeMirrors(
+export const mirrorContract = initCodeMirrors(
     "main.ts",
     initMirrorContractValue,
     "#mirror-contract",
     mirrorContractValue
 );
 
-const mirrorTest = initCodeMirrors("test.ts", initMirrorTestValue, "#mirror-test", mirrorTestValue);
+export const mirrorTest = initCodeMirrors(
+    "test.ts",
+    initMirrorTestValue,
+    "#mirror-test",
+    mirrorTestValue
+);
 
 let consoleValue = "";
 

@@ -4,88 +4,81 @@ import { Massa } from "./libs/massa-as-sdk.js";
 import { Envy } from "./libs/unittest.js";
 import { initMirrorContractValue, initMirrorTestValue } from "./libs/init-values.js";
 
-window.compiledFiled = "";
-let mirrorContractValue = localStorage.getItem("main.ts");
-let mirrorTestValue = localStorage.getItem("test.ts");
-
-if (localStorage.getItem("main.ts") == null || localStorage.getItem("main.ts") == "") {
-    mirrorContractValue = initMirrorContractValue;
-}
-
-if ((localStorage.getItem("test.ts") == null || localStorage.getItem("test.ts")) == "") {
-    mirrorTestValue = initMirrorTestValue;
-}
-
 window.DecodeUrl = (url) => {
-    if (url.lastIndexOf("?") != -1) initMirrorValue = atob(url.substring(url.lastIndexOf("?") + 1));
+    if (url.lastIndexOf("?") != -1)
+        initMirrorContractValue = atob(url.substring(url.lastIndexOf("?") + 1));
 };
 DecodeUrl(window.location.href);
 
-// Mirror contract
-window.mirrorContract = CodeMirror(document.querySelector("#mirror-contract"), {
-    lineNumbers: true,
-    tabSize: 2,
-    value: mirrorContractValue,
-    mode: "javascript",
-    theme: "monokai",
-});
-mirrorContract.setSize("100%", "100%");
+window.compiledFiled = "";
 
-// Mirror unitTest
-window.mirrorTest = CodeMirror(document.querySelector("#mirror-test"), {
-    lineNumbers: true,
-    tabSize: 2,
-    value: mirrorTestValue,
-    mode: "javascript",
-    theme: "monokai",
-});
+function initCodeMirrors(fileName, initValue, id, value) {
+    if (localStorage.getItem(fileName) == null || localStorage.getItem(fileName) == "") {
+        value = initValue;
+    } else {
+        value = localStorage.getItem(fileName);
+    }
 
-mirrorTest.setSize("100%", "100%");
+    let mirror = CodeMirror(document.querySelector(id), {
+        lineNumbers: true,
+        tabSize: 2,
+        value: value,
+        mode: "javascript",
+        theme: "monokai",
+    });
+    mirror.setSize("100%", "100%");
+    mirror.on("change", function (cm, change) {
+        localStorage.setItem(fileName, mirror.getValue());
+    });
+    mirror.setSize("100%", "100%");
+    return mirror;
+}
+
+function formatCode(mirrors) {
+    mirrors.forEach((mirror) => {
+        mirror.setValue(
+            prettier.format(mirror.getValue(), {
+                semi: false,
+                parser: "typescript",
+                plugins: [parserTypeScript],
+            })
+        );
+    });
+}
+
+let mirrorContractValue;
+let mirrorTestValue;
+
+const mirrorContract = initCodeMirrors(
+    "main.ts",
+    initMirrorContractValue,
+    "#mirror-contract",
+    mirrorContractValue
+);
+
+const mirrorTest = initCodeMirrors("test.ts", initMirrorTestValue, "#mirror-test", mirrorTestValue);
 
 let consoleValue = "";
-
-window.formatCode = () => {
-    mirrorContract.setValue(
-        prettier.format(mirrorContract.getValue(), {
-            semi: false,
-            parser: "typescript",
-            plugins: [parserTypeScript],
-        })
-    );
-    mirrorTest.setValue(
-        prettier.format(mirrorTest.getValue(), {
-            semi: false,
-            parser: "typescript",
-            plugins: [parserTypeScript],
-        })
-    );
-};
-
-mirrorContract.on("change", function (cm, change) {
-    localStorage.setItem("main.ts", mirrorContract.getValue());
-});
-mirrorTest.on("change", function (cm, change) {
-    localStorage.setItem("test.ts", mirrorTest.getValue());
-});
 
 // Set the Console Value
 function setConsoleValue(type, message) {
     if (type == "clear") {
         consoleValue = "";
         $("#console").html("");
+    } else {
+        let headerSpan;
+        if (type == "log") {
+            headerSpan = `<span style="color: grey">`;
+        }
+        if (type == "error") {
+            headerSpan = `<span style="color: red">`;
+        }
+        if (type == "event") {
+            headerSpan = `<span style="color: green">`;
+        }
+        consoleValue += "<br>" + headerSpan + message + "</span>";
+        $("#console").html(consoleValue);
     }
-    let headerSpan;
-    if (type == "log") {
-        headerSpan = `<span style="color: grey">`;
-    }
-    if (type == "error") {
-        headerSpan = `<span style="color: red">`;
-    }
-    if (type == "event") {
-        headerSpan = `<span style="color: green">`;
-    }
-    consoleValue += "<br>" + headerSpan + message + "</span>";
-    $("#console").html(consoleValue);
 }
 
 // Compile Smart Contract
@@ -138,14 +131,13 @@ window.compileAS = async function (inputFile, outputName) {
     } else {
         setConsoleValue("log", stdout.toString());
         compiledFiled = stdout.toString();
-        console.log(outputs);
         setConsoleValue("log", outputs[outputName + ".wat"]);
     }
     return outputs;
 };
 
 window.ShareCode = () => {
-    let encoded = btoa(mirrorContractValue.getValue());
+    let encoded = btoa(mirrorContract.getValue());
     navigator.clipboard.writeText(window.location.href + "?" + encoded);
     // Alert the copied text
     alert("Link copied in clipboard");
@@ -170,9 +162,9 @@ window.handleClickCompile = () => {
     compileAS("main", "main");
 };
 window.handleClickClear = () => {
-    setConsoleValue("clear");
+    setConsoleValue("clear", "");
 };
-window.handleClickFormat = () => formatCode();
+window.handleClickFormat = () => formatCode([mirrorContract, mirrorTest]);
 window.handleClickDiscard = () => {
     localStorage.setItem("main.ts", null), mirrorContract.setValue("");
     localStorage.setItem("test.ts", null), mirrorTest.setValue("");
@@ -185,7 +177,6 @@ window.handleClickRunTests = () => {
 window.runUnitTest = async function () {
     // Compile Smart Contract
     const outputs = await window.compileAS("allFiles", "allFiles");
-    console.log(outputs);
     const testModule = await WebAssembly.compile(outputs["allFiles.wasm"]);
 
     const memory = new WebAssembly.Memory({ initial: 4 });

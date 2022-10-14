@@ -19,6 +19,7 @@ window.mirror = CodeMirror(document.querySelector("#codemirror"), {
     value: initMirrorValue,
     mode: "javascript",
     theme: "monokai",
+    gutters: ["error"],
 });
 mirror.setSize("100%", "100%");
 window.formatCode = () => {
@@ -77,15 +78,18 @@ window.compileAS = async function (codeCompile) {
         },
     });
     if (error) {
+        console.error("Compilation failed: " + error.message);
         setConsoleValue("Compilation failed: " + error.message);
-        setConsoleValue(stderr.toString());
+        console.error(stderr.toString());
     } else {
         setConsoleValue(stdout.toString());
         compiledFiled = stdout.toString();
     }
 };
-mirror.on("change", function (cm, change) {
-    localStorage.setItem("main.ts", mirror.getValue());
+mirror.on("change", async () => {
+    const value = mirror.getValue();
+
+    localStorage.setItem("main.ts", value);
 });
 
 window.ShareCode = () => {
@@ -117,6 +121,7 @@ window.handleClickClear = () => {
     setConsoleValue("clear");
 };
 window.handleClickFormat = () => formatCode();
+
 window.handleClickDiscard = () => {
     localStorage.setItem("main.ts", ""), mirror.setValue("");
 };

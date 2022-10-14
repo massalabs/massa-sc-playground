@@ -1,280 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>MASSA PLAYGROUND</title>
+        <meta name="description" content="Massa SC Playground." />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="stylesheet" href="index.css" />
 
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MASSA PLAYGROUND</title>
-    <meta name="description" content="Massa SC Playground." />
-    <link rel="icon" href="/favicon.ico" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="stylesheet" href="index.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/theme/monokai.min.css" />
-    <script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.js"></script>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/theme/monokai.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
+            integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        />
 
-    <script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1/dist/es-module-shims.js"></script>
-    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
-    <script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/mode/javascript/javascript.min.js"></script>
-    <script type="importmap">
+        <!-- Bootstrap Font Icon CSS -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css"
+        />
+
+        <script type="importmap">
             {
                 "imports": {
                     "binaryen": "https://cdn.jsdelivr.net/npm/binaryen@110.0.0/index.js",
                     "long": "https://cdn.jsdelivr.net/npm/long@5.2.0/index.js",
                     "assemblyscript": "https://cdn.jsdelivr.net/npm/assemblyscript@0.21.5/dist/assemblyscript.js",
-                    "assemblyscript/asc": "https://cdn.jsdelivr.net/npm/assemblyscript@0.21.5/dist/asc.js"
+                    "assemblyscript/asc": "https://cdn.jsdelivr.net/npm/assemblyscript@0.21.5/dist/asc.js",
+                    "parser-typescript": "https://unpkg.com/prettier@2.7.1/esm/parser-typescript.mjs",
+                    "prettier": "https://unpkg.com/prettier@2.7.1/standalone.js"
                 }
             }
         </script>
+        <script
+            type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.js"
+        ></script>
+        <script
+            async
+            src="https://cdn.jsdelivr.net/npm/es-module-shims@1/dist/es-module-shims.js"
+        ></script>
+        <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+        <script
+            type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/mode/javascript/javascript.min.js"
+        ></script>
+        <script
+            type="text/javascript"
+            src="https://unpkg.com/prettier@2.7.1/standalone.js"
+        ></script>
+        <script
+            type="text/javascript"
+            src="https://unpkg.com/prettier@2.7.1/esm/parser-typescript.mjs"
+        ></script>
 
-    <script type="text/javascript" src="./libs/massa-as-sdk.js"></script>
-    <script type="text/javascript" src="./libs/unittest.js"></script>
-    <script type="text/javascript" src="./libs/sam.js"></script>
+        <script type="module" src="module.js"></script>
+        <script type="text/javascript" src="index.js"></script>
 
-    <script type="module">
-        import asc from "assemblyscript/asc";
+        <script>
+            //Exporting written file
 
-        window.compiledFiled = "";
-
-        window.mirror = CodeMirror(document.querySelector("#codemirror"), {
-            lineNumbers: true,
-            tabSize: 2,
-            value: "export function add(a: i32, b: i32): i32 {  return a + b;}",
-            mode: "javascript",
-            theme: "monokai",
-        });
-
-        let consoleValue = "";
-
-        // Set the Console Value
-
-        function setConsoleValue(message) {
-            if (message == "clear") {
-                consoleValue = "";
-                $("#console").val("");
-            } else {
-                consoleValue = consoleValue + message;
-                $("#console").val(consoleValue);
-            }
-        }
-
-        // Compile Smart Contract
-
-        let codeCompile = "";
-
-        window.compileAS = async function (codeCompile) {
-            const textModule = "main.wat";
-            const wasmModule = "main.wasm";
-
-            codeCompile = mirror.getValue();
-            if (codeCompile == "") {
-                codeCompile = "export function add(a: i32, b: i32): i32 {  return a + b;}";
-            }
-
-            const codeCompileFormatted = codeCompile.replace(
-                "@massalabs/massa-as-sdk",
-                "./@massalabs/massa-as-sdk.ts"
-            );
-
-            const files = {
-                "main.ts": codeCompileFormatted,
-                "@massalabs/massa-as-sdk.ts": Massa(),
-                "unittest.ts": Envy(),
-            };
-
-            const outputs = {};
-            let { error, stdout, stderr } = await asc.main(
-                [
-                    "main.ts",
-                    "-t",
-                    "--textFile",
-                    textModule,
-                    "--outFile",
-                    wasmModule,
-                    "--bindings",
-                    "raw",
-                ],
-                {
-                    readFile: (name, baseDir) => {
-                        setConsoleValue("readFile: " + name + ", baseDir=" + baseDir);
-                        console.log(Object.prototype.hasOwnProperty.call(files, name));
-                        if (Object.prototype.hasOwnProperty.call(files, name)) {
-                            return files[name];
-                        }
-                    },
-                    writeFile: (name, data, baseDir) => {
-                        setConsoleValue("writeFile: " + name + ", baseDir=" + baseDir);
-                        outputs[name] = data;
-                    },
-                    listFiles: (dirname, baseDir) => {
-                        console.log("listFiles: " + dirname + ", baseDir=" + baseDir);
-                        setConsoleValue("listFiles: " + dirname + ", baseDir=" + baseDir);
-                        return [];
-                    },
+            function exportCompiledFile() {
+                if (compiledFiled == "") {
+                    console.log("no compiled filed");
+                } else {
+                    blob = new Blob([compiledFiled], { type: "text/plain" });
+                    url = URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+                    link.download = "yourCompiledCode.wat";
+                    link.href = url;
+                    link.click();
                 }
-            );
-
-            if (error) {
-                setConsoleValue("Compilation failed: " + error.message);
-                setConsoleValue(stderr.toString());
-            } else {
-                setConsoleValue(outputs[textModule]);
-
-                // Unit Testing part
-                const mod = new WebAssembly.Module(outputs[wasmModule]);
-                const instance = await WebAssembly.instantiate(mod);
-                console.log(instance.exports.add(1, 2));
             }
-        };
 
-        window.handleClickCompile = () => {
-            compileAS(codeCompile);
-        };
-    </script>
-
-    <script type="module">
-        import asc from "assemblyscript/asc";
-
-        // Compile Smart Contract
-
-        window.compileUnittest = async function () {
-            const aa = "unittest.wat";
-            const bb = "unittest.wasm";
-
-            const filess = {
-                "unittest.ts": Envy(),
+            const handleClickExportCompiled = () => {
+                exportCompiledFile();
             };
+        </script>
+    </head>
 
-            const outputs = {};
-
-            let { error, stdout, stderr } = await asc.main(
-                ["unittest.ts", "-t", "--textFile", aa, "--outFile", bb, "--bindings", "raw"],
-                {
-                    readFile: (name, baseDir) => {
-                        console.log("readFile: " + name + ", baseDir=" + baseDir);
-                        console.log(Object.prototype.hasOwnProperty.call(filess, name));
-                        if (Object.prototype.hasOwnProperty.call(filess, name)) {
-                            console.log(filess);
-                            return filess[name];
-                        }
-
-                        return null;
-                    },
-                    writeFile: (name, data, baseDir) => {
-                        console.log("writeFile: " + name + ", baseDir=" + baseDir);
-                        outputs[name] = data;
-                    },
-                    listFiles: (dirname, baseDir) => {
-                        console.log("listFiles: " + dirname + ", baseDir=" + baseDir);
-                        return [];
-                    },
-                }
-            );
-
-            if (error) {
-                console.log(error);
-                console.log(stdout.toString());
-                console.log(stderr.toString());
-            } else {
-                const mod = await WebAssembly.compile(outputs[bb]);
-                const memory = new WebAssembly.Memory({ initial: 8 });
-                const imports = {
-                    env: {
-                        memory,
-                        abort(msg, file, line, col) {
-                            process.stdout.write(
-                                `abort: ${getString(msg)} at ${getString(
-                                    file
-                                )}:${line}:${col}\n`
-                            );
-                            process.exit(1);
-                        },
-                        log(ptr) {
-                            const rawLen = new Uint8Array(instance.exports.memory.buffer, ptr - 4, 4);
-                            const len = new DataView(rawLen.buffer).getUint32(ptr - 4, true);
-                            const rawMsg = new Uint8Array(instance.exports.memory.buffer, ptr, len);
-                            const msg = new TextDecoder().decode(rawMsg);
-                            console.log("####", msg);
-                        },
-                    },
-                };
-                const instance = await WebAssembly.instantiate(mod, imports);
-
-                instance.exports._startTests();
-            }
-        };
-
-        window.handleClickClear = () => {
-            compileUnittest();
-        };
-    </script>
-
-    <script>
-        //Exporting written file
-
-        let code = "";
-        function exportTSfromText(code) {
-            code = mirror.getValue();
-            if (code == "") {
-                code = "export function add(a: i32, b: i32): i32 {  return a + b;}";
-            }
-            blob = new Blob([code], { type: "application/typescript" });
-            url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.download = "code.ts";
-            link.href = url;
-            link.click();
-        }
-        const handleClickExport = () => {
-            exportTSfromText(code);
-        };
-
-        function exportCompiledFile() {
-            if (compiledFiled == "") {
-                console.log("no compiled filed");
-            } else {
-                blob = new Blob([compiledFiled], { type: "text/plain" });
-                url = URL.createObjectURL(blob);
-                const link = document.createElement("a");
-                link.download = "yourCompiledCode.wat";
-                link.href = url;
-                link.click();
-            }
-        }
-
-        const handleClickExportCompiled = () => {
-            exportCompiledFile();
-        };
-    </script>
-</head>
-
-<body>
-    <div class="container">
-        <h1>Massa SC Playground</h1>
-        <div class="row">
-            <div id="codemirror"></div>
-            <!-- <textarea id="input-code"
-                placeholder="export function add(a: i32, b: i32): i32 {  return a + b;}"></textarea> -->
-            <div class="column">
-                <button class="button-34" id="export-button" onclick="handleClickExport()">
-                    Export Input
-                </button>
-                <button class="button-34" id="compile-button" onclick="handleClickCompile()">
-                    Compile
-                </button>
-                <button class="button-34" id="clear-console" onclick="handleClickClear()">
-                    Clear Console
-                </button>
-                <button class="button-34" id="export-button" onclick="handleClickExportCompiled()">
-                    Export Compiled File
-                </button>
+    <body>
+        <div class="container">
+            <div class="icon-bar">
+                <a href="#"><i class="fa fa-file"></i></a>
+                <a href="#"><i class="fa fa-trowel"></i></a>
+                <a href="#"><i class="fa fa-share-nodes"></i></a>
             </div>
-            <textarea disabled id="console" placeholder="console"></textarea>
-        </div>
-    </div>
-</body>
+            <div class="control-panel">
+                <div class="column">
+                    <button class="button-34" id="export-button" onclick="handleClickExport()">
+                        Export Input
+                    </button>
+                    <button
+                        class="button-34"
+                        id="export-button"
+                        onclick="handleClickExportCompiled()"
+                    >
+                        Export Compiled File
+                    </button>
+                    <button class="button-34" id="compile-button" onclick="handleClickCompile()">
+                        Compile
+                    </button>
+                    <button class="button-34" id="export-button" onclick="handleClickRunTests()">
+                        Test
+                    </button>
+                    <button class="button-34" id="clear-console" onclick="handleClickClear()">
+                        Clear Console
+                    </button>
+                    <button class="button-34" id="export-button" onclick="handleClickFormat()">
+                        Format Code
+                    </button>
+                    <button class="button-34" id="export-button" onclick="handleClickDiscard()">
+                        Remove File
+                    </button>
+                </div>
+            </div>
 
+            <div class="codemirror-container">
+                <div id="mirror-contract"></div>
+                <div id="mirror-test"></div>
+            </div>
+            <div id="console"></div>
+        </div>
+    </body>
 </html>

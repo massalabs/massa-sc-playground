@@ -1,5 +1,5 @@
-function Envy() {
-    return ` 
+export const Envy = ` 
+
       @external("env", "log")
       export declare function log(message: ArrayBuffer): void
     
@@ -14,13 +14,6 @@ function Envy() {
       }
         
       function write(str: string): void {
-       
-        // const buff = String.UTF8.encode(str);
-        // const iov = memory.data(16);
-        // store<u32>(iov, changetype<usize>(buff), 0);
-        // store<u32>(iov, <u32>buff.byteLength, sizeof<usize>());
-        // const written_ptr = memory.data(8);
-        // //fd_write(1, iov, 1, written_ptr);
         log(String.UTF8.encode(str));
       }
       
@@ -81,26 +74,7 @@ function Envy() {
         t.group = true;
         current.children.push(t);
       }
-      test('A test', () => {
-        assert(true, 'a test');
-      });
-      
-      describe('A block', () => {
-        test('a test', () => {
-          assert(42 == 42, 'this test fails');
-        });
-      });
-      
-      describe('imports', () => {
-        test('a test avoiding assert', () => {
-          const got = 12;
-          const want = 41;
-          if (got != want) {
-            error('imported() = ' + got.toString() + ', ' + want.toString() + ' was expected.');
-            return;
-          }
-        });
-      });
-      
+
+
+
       `;
-}

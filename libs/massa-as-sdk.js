@@ -1,5 +1,4 @@
-function Massa() {
-    return `export namespace env {
+export const Massa = `export namespace env {
       // @ts-ignore
       @external("massa", "assembly_script_print")
       export declare function print(message: string): void
@@ -1104,4 +1103,3 @@ function Massa() {
   export function currentThread(): u8 {
     return env.currentThread();
   }`;
-}

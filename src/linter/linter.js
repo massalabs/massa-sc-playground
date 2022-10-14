@@ -1,13 +1,14 @@
-const eslint = require("./node_modules/eslint-linter-browserify/linter.js");
-const TypescriptParser = require("browser-typescript-parser").TypescriptParser;
+import "vs/language/typescript/tsWorker";
+import { Linter } from "eslint";
+// const TypescriptParser = require("browser-typescript-parser").TypescriptParser;
 
-window.handleClickLint = async () => {
+export async function handleClickLint() {
     applyLint(mirror.getValue());
-};
+}
 
-window.handleClickDiscard = () => {
+export function handleClickDiscard() {
     localStorage.setItem("main.ts", ""), mirror.setValue("");
-};
+}
 
 // Linter helpers:
 async function lint(sourceCode) {
@@ -23,14 +24,14 @@ async function getESLintrc() {
 }
 
 async function createLinter() {
-    const linter = new eslint.Linter();
+    const linter = new Linter();
 
-    linter.defineParser("@typescript-eslint/parser", {
-        async parse(code, options) {
-            const parser = new TypescriptParser();
-            const parsed = await parser.parseSource(code);
-        },
-    });
+    // linter.defineParser("@typescript-eslint/parser", {
+    //     async parse(code, options) {
+    //         const parser = new TypescriptParser();
+    //         const parsed = await parser.parseSource(code);
+    //     },
+    // });
 
     return linter;
 }

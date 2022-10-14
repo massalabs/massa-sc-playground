@@ -1,11 +1,19 @@
 {
   "name": "massa-sc-playground",
   "version": "1.0.0",
+  "private": true,
   "description": "Assemblyscript playground that allows to compile &amp; play with smart contracts",
-  "main": "index.js",
+  "engines": {
+    "node": "^12.22.0 || ^14.17.0 || >=16.0.0"
+  },
+  "types": "types/index.d.ts",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "serve": "serve --no-clipboard",
-    "build": "browserify -o dist/linter.js linter.js",
+    "build": "rollup --config=rollup.config.js",
     "watch": "nodemon --exec \"npm run build && npm run serve\""
   },
   "nodemonConfig": {
@@ -24,19 +32,26 @@
   },
   "homepage": "https://github.com/massalabs/massa-sc-playground#readme",
   "devDependencies": {
-    "browserify": "^17.0.0",
+    "@rollup/plugin-commonjs": "^23.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^14.1.0",
+    "@rollup/plugin-replace": "^5.0.0",
+    "@rollup/pluginutils": "^4.2.1",
+    "@typescript-eslint/eslint-plugin": "5.40.0",
+    "@typescript-eslint/parser": "5.40.0",
+    "@typescript-eslint/scope-manager": "5.40.0",
+    "@typescript-eslint/typescript-estree": "5.40.0",
+    "@typescript-eslint/visitor-keys": "5.40.0",
+    "eslint": "*",
     "nodemon": "^2.0.20",
+    "rollup": "^2.75.4",
+    "rollup-plugin-terser": "^7.0.2",
+    "semver": "^7.3.7",
     "serve": "^14.0.1"
   },
   "dependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.40.0",
-    "@typescript-eslint/parser": "^5.40.0",
-    "@typescript-eslint/scope-manager": "^5.40.0",
-    "@typescript-eslint/typescript-estree": "^5.40.0",
-    "assemblyscript": "^0.21.6",
-    "browser-typescript-parser": "^2.6.7",
-    "eslint": "^8.25.0",
-    "eslint-linter-browserify": "^8.25.0",
-    "typescript": "^4.8.4"
+    "@typescript-eslint/types": "5.40.0",
+    "@typescript-eslint/utils": "5.40.0",
+    "assemblyscript": "^0.21.6"
   }
 }

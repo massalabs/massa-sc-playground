@@ -67,28 +67,6 @@
         ></script>
 
         <script type="module" src="module.js"></script>
-        <script type="module" src="index.js"></script>
-
-        <script>
-            //Exporting written file
-
-            function exportCompiledFile() {
-                if (compiledFiled == "") {
-                    console.log("no compiled filed");
-                } else {
-                    blob = new Blob([compiledFiled], { type: "text/plain" });
-                    url = URL.createObjectURL(blob);
-                    const link = document.createElement("a");
-                    link.download = "yourCompiledCode.wat";
-                    link.href = url;
-                    link.click();
-                }
-            }
-
-            const handleClickExportCompiled = () => {
-                exportCompiledFile();
-            };
-        </script>
     </head>
 
     <body>

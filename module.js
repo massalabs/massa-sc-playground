@@ -10,8 +10,6 @@ window.DecodeUrl = (url) => {
 };
 DecodeUrl(window.location.href);
 
-window.compiledFiled = "";
-
 function initCodeMirrors(fileName, initValue, id, value) {
     if (localStorage.getItem(fileName) == null || localStorage.getItem(fileName) == "") {
         value = initValue;
@@ -49,19 +47,14 @@ function formatCode(mirrors) {
 let mirrorContractValue;
 let mirrorTestValue;
 
-export const mirrorContract = initCodeMirrors(
+const mirrorContract = initCodeMirrors(
     "main.ts",
     initMirrorContractValue,
     "#mirror-contract",
     mirrorContractValue
 );
 
-export const mirrorTest = initCodeMirrors(
-    "test.ts",
-    initMirrorTestValue,
-    "#mirror-test",
-    mirrorTestValue
-);
+const mirrorTest = initCodeMirrors("test.ts", initMirrorTestValue, "#mirror-test", mirrorTestValue);
 
 let consoleValue = "";
 
@@ -135,7 +128,6 @@ window.compileAS = async function (inputFile, outputName) {
         setConsoleValue("error", stderr.toString());
     } else {
         setConsoleValue("log", stdout.toString());
-        compiledFiled = stdout.toString();
         setConsoleValue("log", outputs[outputName + ".wat"]);
     }
     return outputs;
@@ -148,16 +140,36 @@ window.ShareCode = () => {
     alert("Link copied in clipboard");
 };
 
-window.exportCompiledCode = () => {
-    let blob = new Blob([compiledFiled], { type: "text/plain" });
+window.exportFile = (fileName) => {
+    const contractFormatted = mirrorContract
+        .getValue()
+        .replace("@massalabs/massa-as-sdk", "./@massalabs/massa-as-sdk.ts");
+
+    const testFormatted = mirrorTest
+        .getValue()
+        .replace("@massalabs/massa-as-sdk", "./@massalabs/massa-as-sdk.ts");
+
+    const files = {
+        "main.ts": contractFormatted,
+        "@massalabs/massa-as-sdk.ts": Massa,
+        "allFiles.ts": Envy + contractFormatted + testFormatted,
+    };
+    let file =
+        files[fileName] == null || files[fileName] == "" ? outputs[fileName] : files[fileName];
+    let blob = new Blob([file], { type: "text/plain" });
     let url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.download = "compiled.wat";
+    link.download = fileName;
     link.href = url;
     link.click();
 };
+
 window.handleClickExportCompiled = () => {
-    exportCompiledCode();
+    exportFile("main.wat");
+};
+
+window.handleClickExport = () => {
+    exportFile("main.ts");
 };
 
 window.handleClickShare = () => {
@@ -170,6 +182,7 @@ window.handleClickClear = () => {
     setConsoleValue("clear", "");
 };
 window.handleClickFormat = () => formatCode([mirrorContract, mirrorTest]);
+
 window.handleClickDiscard = () => {
     localStorage.setItem("main.ts", null), mirrorContract.setValue("");
     localStorage.setItem("test.ts", null), mirrorTest.setValue("");

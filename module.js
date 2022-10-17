@@ -81,7 +81,7 @@ function setConsoleValue(type, message) {
 
 // Compile Smart Contract
 const outputs = {};
-window.compileAS = async function (inputFile, outputName) {
+window.compileAS = async function (inputFile, outputName, isWriteCompiled) {
     const contractFormatted = mirrorContract
         .getValue()
         .replace("@massalabs/massa-as-sdk", "./@massalabs/massa-as-sdk.ts");
@@ -126,7 +126,8 @@ window.compileAS = async function (inputFile, outputName) {
     if (error) {
         setConsoleValue("error", "Compilation failed: " + error.message);
         setConsoleValue("error", stderr.toString());
-    } else {
+    }
+    if (isWriteCompiled && !error) {
         setConsoleValue("log", stdout.toString());
         setConsoleValue("log", outputs[outputName + ".wat"]);
     }
@@ -176,7 +177,7 @@ window.handleClickShare = () => {
     ShareCode();
 };
 window.handleClickCompile = () => {
-    compileAS("main", "main");
+    compileAS("main", "main", true);
 };
 window.handleClickClear = () => {
     setConsoleValue("clear", "");
@@ -194,7 +195,7 @@ window.handleClickRunTests = () => {
 
 window.runUnitTest = async function () {
     // Compile Smart Contract
-    const outputs = await window.compileAS("allFiles", "allFiles");
+    const outputs = await window.compileAS("allFiles", "allFiles", false);
     const testModule = await WebAssembly.compile(outputs["allFiles.wasm"]);
 
     const memory = new WebAssembly.Memory({ initial: 4 });

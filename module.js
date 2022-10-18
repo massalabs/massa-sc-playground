@@ -127,7 +127,7 @@ window.compileAS = async function (inputFile, outputName, isWriteCompiled) {
         setConsoleValue("error", "Compilation failed: " + error.message);
         setConsoleValue("error", stderr.toString());
     }
-    if (isWriteCompiled && !error) {
+    else if (isWriteCompiled) {
         setConsoleValue("log", stdout.toString());
         setConsoleValue("log", outputs[outputName + ".wat"]);
     }

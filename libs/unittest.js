@@ -14,7 +14,7 @@ export const Envy = `
       }
         
       function write(str: string): void {
-        log(String.UTF8.encode(str));
+        log(String.UTF16.encode(str));
       }
       
       class TestNode {

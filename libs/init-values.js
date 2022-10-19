@@ -15,13 +15,15 @@ describe("A group of test", () => {
 describe("An other group of test", () => {
   test("Testing the Storage", () => {
     setStorage()
-    assert(
-      getOf(
-        new Address("A12E6N5BFAdC2wyiBV6VJjqkWhpz1kLVp2XpbRdSnL1mKjCWT6oR"),
-        "test"
-      ) == "value",
-      "Test failed"
+    const got = getOf(
+      new Address("A12E6N5BFAdC2wyiBV6VJjqkWhpz1kLVp2XpbRdSnL1mKjCWT6oR"),
+      "test"
     )
+    const want = "value"
+    if (got != want) {
+      error(got.toString() + ", " + want.toString() + " was expected.")
+      return
+    }
   })
 })`;
 

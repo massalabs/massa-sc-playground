@@ -5,51 +5,8 @@ import { Envy } from "./libs/unittest.js";
 import { initMirrorContractValue, initMirrorTestValue } from "./libs/init-values.js";
 
 
-// Runtime header offsets
-const ID_OFFSET = -8;
 const SIZE_OFFSET = -4;
-
-// Runtime ids
-const ARRAYBUFFER_ID = 0;
 const STRING_ID = 1;
-// const ARRAYBUFFERVIEW_ID = 2;
-
-// Runtime type information
-const ARRAYBUFFERVIEW = 1 << 0;
-const ARRAY = 1 << 1;
-const STATICARRAY = 1 << 2;
-// const SET = 1 << 3;
-// const MAP = 1 << 4;
-const VAL_ALIGN_OFFSET = 6;
-// const VAL_ALIGN = 1 << VAL_ALIGN_OFFSET;
-const VAL_SIGNED = 1 << 11;
-const VAL_FLOAT = 1 << 12;
-// const VAL_NULLABLE = 1 << 13;
-const VAL_MANAGED = 1 << 14;
-// const KEY_ALIGN_OFFSET = 15;
-// const KEY_ALIGN = 1 << KEY_ALIGN_OFFSET;
-// const KEY_SIGNED = 1 << 20;
-// const KEY_FLOAT = 1 << 21;
-// const KEY_NULLABLE = 1 << 22;
-// const KEY_MANAGED = 1 << 23;
-
-// Array(BufferView) layout
-const ARRAYBUFFERVIEW_BUFFER_OFFSET = 0;
-const ARRAYBUFFERVIEW_DATASTART_OFFSET = 4;
-const ARRAYBUFFERVIEW_BYTELENGTH_OFFSET = 8;
-const ARRAYBUFFERVIEW_SIZE = 12;
-const ARRAY_LENGTH_OFFSET = 12;
-const ARRAY_SIZE = 16;
-
-const E_NO_EXPORT_TABLE   = "Operation requires compiling with --exportTable";
-const E_NO_EXPORT_RUNTIME = "Operation requires compiling with --exportRuntime";
-const F_NO_EXPORT_RUNTIME = () => { throw Error(E_NO_EXPORT_RUNTIME); };
-
-const BIGINT = typeof BigUint64Array !== "undefined";
-const THIS = Symbol();
-
-const STRING_SMALLSIZE = 192; // break-even point in V8
-const STRING_CHUNKSIZE = 1024; // mitigate stack overflow
 const utf16 = new TextDecoder("utf-16le", { fatal: true }); // != wtf16
 
 window.DecodeUrl = (url) => {
@@ -145,7 +102,6 @@ window.compileAS = async function (inputFile, outputName, isWriteCompiled) {
         "@massalabs/massa-as-sdk.ts": Massa,
         "allFiles.ts": Envy + contractFormatted + testFormatted,
     };
-    console.log(files["allFiles.ts"]);
 
     const { error, stdout, stderr } = await asc.main(
         [
@@ -164,7 +120,7 @@ window.compileAS = async function (inputFile, outputName, isWriteCompiled) {
                 setConsoleValue("log", "readFile:" + name + ", baseDir=" + baseDir);
                 if (Object.prototype.hasOwnProperty.call(files, name)) return files[name];
                 return null;
-                },
+            },
             writeFile: (name, data, baseDir) => {
                 setConsoleValue("log", "writeFile: " + name + ", baseDir=" + baseDir);
                 outputs[name] = data;
@@ -242,9 +198,26 @@ window.handleClickDiscard = () => {
     localStorage.setItem("test.ts", null), mirrorTest.setValue("");
 };
 
-window.handleClickRunTests = () => {    
+window.handleClickRunTests = () => {
     runUnitTest();
 };
+
+/** Retrieve the string linked to the ptr in memory */
+function getString(ptr, xpt) {
+    const len = new Uint32Array(xpt.memory.buffer)[(ptr + SIZE_OFFSET) >>> 2] >>> 1;
+    const wtf16 = new Uint16Array(xpt.memory.buffer, ptr, len);
+    return utf16.decode(wtf16);
+}
+
+/** Allocates a new string in the module's memory and returns its pointer. */
+function newString(str, xpt) {
+    if (str == null) return 0;
+    const length = str.length;
+    const ptr = xpt.__new(length << 1, STRING_ID);
+    const U16 = new Uint16Array(xpt.memory.buffer);
+    for (let i = 0, p = ptr >>> 1; i < length; ++i) U16[p + i] = str.charCodeAt(i);
+    return ptr;
+}
 
 window.runUnitTest = async function () {
     // Compile Smart Contract
@@ -253,78 +226,55 @@ window.runUnitTest = async function () {
     const memory = new WebAssembly.Memory({ initial: 4 });
     const Storage = new Map();
 
-    function convert(instance, string) {
-        const rawLen = new Uint8Array(instance.exports.memory.buffer, string - 4, 4);
-        const len = new DataView(rawLen.buffer).getUint32(string - 4, true);
-        const rawMsg = new Uint8Array(instance.exports.memory.buffer, string, len);
-        const msg = new TextDecoder().decode(rawMsg);
-        return msg;
-    }
-    
     const imports = {
         env: {
             memory,
-            abort(msg, file, line, col) {
-                const text = convert(instanceTest, msg);
-                const filestr = convert(instanceTest, file);
-                setConsoleValue("error", text +","+filestr +","+line.toString() );
+            abort(msgPtr, filePtr, linePtr, colPtr) {
+                const msgStr = getString(msgPtr, instanceTest.exports);
+                const fileStr = getString(filePtr, instanceTest.exports);
+                const lineStr = getString(linePtr, instanceTest.exports);
+                const colStr = getString(colPtr, instanceTest.exports);
+                setConsoleValue("error", `Error : ${msgStr} in ${fileStr} at line ${lineStr}, col ${colStr} `);
             },
             log(ptr) {
-                const msg = convert(instanceTest, ptr);
-                setConsoleValue("log", msg);
+                const msg = getString(ptr, instanceTest.exports);
+                const logCode = msg.includes("Error") ? "error" : "log";
+                setConsoleValue(logCode, msg);
             },
         },
         massa: {
             memory,
             assembly_script_generate_event(string) {
-                const msg = convert(instanceTest, string);
+                const msg = getString(string, instanceTest.exports);
                 setConsoleValue("event", msg);
             },
             assembly_script_set_data_for(address, key, value) {
-                const addressStr = convert(instanceTest,address);
-                const keyStr = convert(instanceTest,key);
-                const valueStr = convert(instanceTest,value);
-
+                const addressStr = getString(address, instanceTest.exports);
+                const keyStr = getString(key, instanceTest.exports);
+                const valueStr = getString(value, instanceTest.exports);
                 if (!Storage.has(addressStr)) {
                     Storage.set(addressStr, new Map());
                 }
                 const addressStorage = Storage.get(addressStr);
-
                 addressStorage.set(keyStr, valueStr);
-                console.log(Storage);
             },
             assembly_script_get_data_for(address, key) {
                 let value = "";
-                const addressStr = convert(instanceTest,address);
-                const keyStr = convert(instanceTest,key);
-
+                const addressStr = getString(address, instanceTest.exports);
+                const keyStr = getString(key, instanceTest.exports);
                 if (Storage.has(addressStr)) {
                     const addressStorage = Storage.get(addressStr);
                     if (addressStorage.has(keyStr)) {
                         value = addressStorage.get(keyStr);
-                        console.log(value);
                     }
-                    
                 }
-                const ptr = __newString(value);
+                const ptr = newString(value, instanceTest.exports);
                 return ptr;
             },
         },
     };
-    
+
     const instanceTest = await WebAssembly.instantiate(testModule, imports);
-    console.log(instanceTest);
-    const exports = instanceTest.exports;
-    
-      /** Allocates a new string in the module's memory and returns its pointer. */
-  function __newString(str) {
-    if (str == null) return 0;
-    const length = str.length; 
-    const ptr = exports.__new(length << 1, STRING_ID);
-    const U16 = new Uint16Array(memory.buffer);
-    for (var i = 0, p = ptr >>> 1; i < length; ++i) U16[p + i] = str.charCodeAt(i);
-    return ptr; 
-  }
 
     instanceTest.exports._startTests();
 };

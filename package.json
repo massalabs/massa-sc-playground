@@ -1,0 +1,32 @@
+{
+    "name": "massa-sc-playground",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Assemblyscript playground that allows to compile &amp; play with smart contracts",
+    "engines": {
+        "node": "^12.22.0 || ^14.17.0 || >=16.0.0"
+    },
+    "types": "types/index.d.ts",
+    "main": "dist/index.js",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "serve": "serve --no-clipboard",
+        "watch": "nodemon --exec npm run serve"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/massalabs/massa-sc-playground.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/massalabs/massa-sc-playground/issues"
+    },
+    "homepage": "https://github.com/massalabs/massa-sc-playground#readme",
+    "devDependencies": {
+        "nodemon": "^2.0.20",
+        "serve": "^14.0.1"
+    }
+}

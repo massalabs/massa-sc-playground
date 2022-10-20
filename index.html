@@ -9,6 +9,7 @@
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="stylesheet" href="index.css" />
+
         <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.css"
@@ -30,6 +31,7 @@
             rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css"
         />
+
         <script type="importmap">
             {
                 "imports": {
@@ -65,7 +67,6 @@
         ></script>
 
         <script type="module" src="module.js"></script>
-        <script type="text/javascript" src="index.js"></script>
     </head>
 
     <body>
@@ -90,6 +91,9 @@
                     <button class="button-34" id="compile-button" onclick="handleClickCompile()">
                         Compile
                     </button>
+                    <button class="button-34" id="export-button" onclick="handleClickRunTests()">
+                        Test
+                    </button>
                     <button class="button-34" id="clear-console" onclick="handleClickClear()">
                         Clear Console
                     </button>
@@ -103,9 +107,10 @@
             </div>
 
             <div class="codemirror-container">
-                <div id="codemirror"></div>
+                <div id="mirror-contract"></div>
+                <div id="mirror-test"></div>
             </div>
-            <textarea disabled id="console" placeholder="console"></textarea>
+            <div id="console"></div>
         </div>
     </body>
 </html>

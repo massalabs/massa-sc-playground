@@ -36,17 +36,23 @@ textarea {
     border: none;
 }
 
-#codemirror {
+#mirror-contract {
+    position: absolute;
+    height: 450px;
+    width: calc((100vw - 250px) / 2);
+}
+#mirror-test {
+    position: absolute;
+    left: calc((100vw - 250px) / 2);
+    width: calc((100vw - 250px) / 2);
     height: 450px;
 }
 
 .codemirror-container {
     position: absolute;
-    width: calc(100vw - 250px);
+    width: 100vw - 250px;
     left: 250px;
     top: 0px;
-
-    overflow: hidden;
 }
 
 h1 {
@@ -77,10 +83,12 @@ h1 {
     font-size: medium;
     position: absolute;
     border-top: 2px solid white;
-    height: calc(97vh - 450px);
+    height: calc(100vh - 460px);
     left: 250px;
     top: 450px;
     width: calc(100vw - 250px);
+    font-family: monospace;
+    overflow-y: scroll;
 }
 
 .file-format {

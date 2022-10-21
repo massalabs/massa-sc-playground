@@ -26,8 +26,9 @@ function initCodeMirrors(fileName, initValue, id, value) {
         tabSize: 2,
         value: value,
         mode: "javascript",
-        theme: "monokai",
+        theme: "material-ocean",
     });
+
     mirror.setSize("100%", "100%");
     mirror.on("change", function (cm, change) {
         localStorage.setItem(fileName, mirror.getValue());
@@ -78,7 +79,7 @@ function setConsoleValue(type, message) {
         if (type == "event") {
             headerSpan = `<span style="color: green">`;
         }
-        consoleValue += "<br>" + headerSpan + message + "</span>";
+        consoleValue += headerSpan + message + "</span>" + "<br>";
         $("#console").html(consoleValue);
     }
 }
@@ -93,9 +94,9 @@ window.compileAS = async function (inputFile, outputName, isWriteCompiled) {
     if (isWriteCompiled) {
         setConsoleValue(
             "log",
-            `****************************
+            ` <br><br> ****************************
         COMPILATION 
-        ****************************`
+        **************************** <br><br>`
         );
     }
 
@@ -229,9 +230,9 @@ function newString(str, xpt) {
 window.runUnitTest = async function () {
     setConsoleValue(
         "log",
-        `****************************
+        ` <br><br> ****************************
         TESTING 
-        ****************************`
+        **************************** <br><br>`
     );
     // Compile Smart Contract
     const outputs = await window.compileAS("allFiles", "allFiles", false);

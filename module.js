@@ -84,11 +84,19 @@ function setConsoleValue(type, message) {
     }
 }
 
-
+function scrollDownToConsole() {
+    $("#console").scrollTop($("#console")[0].scrollHeight);
+}
 
 // Compile Smart Contract
 const outputs = {};
 window.compileAS = async function (inputFile, outputName, isWriteCompiled) {
+    if (isWriteCompiled) {
+        setConsoleValue("log", `****************************
+        COMPILATION 
+        ****************************`);
+    }
+
     const contractFormatted = mirrorContract
         .getValue()
         .replace("@massalabs/massa-as-sdk", "./@massalabs/massa-as-sdk.ts");
@@ -117,16 +125,13 @@ window.compileAS = async function (inputFile, outputName, isWriteCompiled) {
         ],
         {
             readFile: (name, baseDir) => {
-                setConsoleValue("log", "readFile:" + name + ", baseDir=" + baseDir);
                 if (Object.prototype.hasOwnProperty.call(files, name)) return files[name];
                 return null;
             },
             writeFile: (name, data, baseDir) => {
-                setConsoleValue("log", "writeFile: " + name + ", baseDir=" + baseDir);
                 outputs[name] = data;
             },
             listFiles: (dirname, baseDir) => {
-                setConsoleValue("log", "listFiles:" + dirname + ", baseDir=" + baseDir);
                 return [];
             },
         }
@@ -139,6 +144,7 @@ window.compileAS = async function (inputFile, outputName, isWriteCompiled) {
         setConsoleValue("log", stdout.toString());
         setConsoleValue("log", outputs[outputName + ".wat"]);
     }
+    scrollDownToConsole();
     return outputs;
 }
 
@@ -220,6 +226,9 @@ function newString(str, xpt) {
 }
 
 window.runUnitTest = async function () {
+    setConsoleValue("log", `****************************
+        TESTING 
+        ****************************`);
     // Compile Smart Contract
     const outputs = await window.compileAS("allFiles", "allFiles", false);
     const testModule = await WebAssembly.compile(outputs["allFiles.wasm"]);
@@ -277,4 +286,5 @@ window.runUnitTest = async function () {
     const instanceTest = await WebAssembly.instantiate(testModule, imports);
 
     instanceTest.exports._startTests();
+    scrollDownToConsole();
 };

@@ -162,7 +162,6 @@ window.ShareCode = () => {
     let contractEncoded = btoa(encodeURIComponent(mirrorContract.getValue()));
     let unitTestEncoded = btoa(encodeURIComponent(mirrorTest.getValue()));
 
-    console.log(unitTestEncoded);
     navigator.clipboard.writeText(
         window.location.href + "?code=" + contractEncoded + "&test=" + unitTestEncoded
     );

@@ -11,19 +11,32 @@ const SIZE_OFFSET = -4;
 const STRING_ID = 1;
 const utf16 = new TextDecoder("utf-16le", { fatal: true }); // != wtf16
 
-window.DecodeUrl = () => {
+function parseURLParams() {
     const url = new URL(window.location.href);
     const params = new URLSearchParams(url.search);
     const code = params.get("code");
     const test = params.get("test");
+    return {
+        code,
+        test,
+    };
+}
+function DecodeUrl() {
+    const params = parseURLParams();
+    initContractValue =
+        params.code !== null ? decodeURIComponent(atob(params.code)) : initContractValue;
+    initTestValue =
+        params.test !== null ? decodeURIComponent(atob(params.test)) : initMirrorTestValue;
+}
 
-    initContractValue = code !== null ? decodeURIComponent(atob(code)) : initContractValue;
-    initTestValue = test !== null ? decodeURIComponent(atob(test)) : initMirrorTestValue;
-};
 DecodeUrl();
 
 function initCodeMirrors(fileName, initValue, id, value) {
-    if (localStorage.getItem(fileName) == null || localStorage.getItem(fileName) == "") {
+    if (
+        localStorage.getItem(fileName) == null ||
+        localStorage.getItem(fileName) == "" ||
+        (parseURLParams().code && parseURLParams().test)
+    ) {
         value = initValue;
     } else {
         value = localStorage.getItem(fileName);
@@ -39,7 +52,10 @@ function initCodeMirrors(fileName, initValue, id, value) {
 
     mirror.setSize("100%", "100%");
     mirror.on("change", function (cm, change) {
-        localStorage.setItem(fileName, mirror.getValue());
+        // Do not update if code is from a sharing link in order top don't override contracts
+        if (!parseURLParams().code && !parseURLParams().params) {
+            localStorage.setItem(fileName, mirror.getValue());
+        }
     });
     mirror.setSize("100%", "100%");
     return mirror;
@@ -158,11 +174,11 @@ window.compileAS = async function (inputFile, outputName, isWriteCompiled) {
     return outputs;
 };
 
-window.ShareCode = () => {
+window.ShareCode = async () => {
     let contractEncoded = btoa(encodeURIComponent(mirrorContract.getValue()));
     let unitTestEncoded = btoa(encodeURIComponent(mirrorTest.getValue()));
 
-    navigator.clipboard.writeText(
+    await navigator.clipboard.writeText(
         window.location.href + "?code=" + contractEncoded + "&test=" + unitTestEncoded
     );
     // Alert the copied text

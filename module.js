@@ -4,7 +4,6 @@ import { Massa } from "./libs/massa-as-sdk.js";
 import { Envy } from "./libs/unittest.js";
 import { initMirrorContractValue, initMirrorTestValue } from "./libs/init-values.js";
 
-
 const SIZE_OFFSET = -4;
 const STRING_ID = 1;
 const utf16 = new TextDecoder("utf-16le", { fatal: true }); // != wtf16
@@ -92,9 +91,12 @@ function scrollDownToConsole() {
 const outputs = {};
 window.compileAS = async function (inputFile, outputName, isWriteCompiled) {
     if (isWriteCompiled) {
-        setConsoleValue("log", `****************************
+        setConsoleValue(
+            "log",
+            `****************************
         COMPILATION 
-        ****************************`);
+        ****************************`
+        );
     }
 
     const contractFormatted = mirrorContract
@@ -121,7 +123,7 @@ window.compileAS = async function (inputFile, outputName, isWriteCompiled) {
             outputName + ".wasm",
             "--bindings",
             "raw",
-            '--exportRuntime',
+            "--exportRuntime",
         ],
         {
             readFile: (name, baseDir) => {
@@ -139,14 +141,13 @@ window.compileAS = async function (inputFile, outputName, isWriteCompiled) {
     if (error) {
         setConsoleValue("error", "Compilation failed: " + error.message);
         setConsoleValue("error", stderr.toString());
-    }
-    else if (isWriteCompiled) {
+    } else if (isWriteCompiled) {
         setConsoleValue("log", stdout.toString());
         setConsoleValue("log", outputs[outputName + ".wat"]);
     }
     scrollDownToConsole();
     return outputs;
-}
+};
 
 window.ShareCode = () => {
     let encoded = btoa(mirrorContract.getValue());
@@ -226,9 +227,12 @@ function newString(str, xpt) {
 }
 
 window.runUnitTest = async function () {
-    setConsoleValue("log", `****************************
+    setConsoleValue(
+        "log",
+        `****************************
         TESTING 
-        ****************************`);
+        ****************************`
+    );
     // Compile Smart Contract
     const outputs = await window.compileAS("allFiles", "allFiles", false);
     const testModule = await WebAssembly.compile(outputs["allFiles.wasm"]);
@@ -243,7 +247,10 @@ window.runUnitTest = async function () {
                 const fileStr = getString(filePtr, instanceTest.exports);
                 const lineStr = getString(linePtr, instanceTest.exports);
                 const colStr = getString(colPtr, instanceTest.exports);
-                setConsoleValue("error", `Error : ${msgStr} in ${fileStr} at line ${lineStr}, col ${colStr} `);
+                setConsoleValue(
+                    "error",
+                    `Error : ${msgStr} in ${fileStr} at line ${lineStr}, col ${colStr} `
+                );
             },
             log(ptr) {
                 const msg = getString(ptr, instanceTest.exports);

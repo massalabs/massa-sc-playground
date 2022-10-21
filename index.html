@@ -4,9 +4,11 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>MASSA PLAYGROUND</title>
-        <meta name="description" content="Massa SC Playground." />
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <meta
+            name="description"
+            content="Write, test, compile, and share Massa's smart-contract code"
+        />
+        <link rel="icon" href="/favicon-32x32.png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="stylesheet" href="index.css" />
 
@@ -107,6 +109,13 @@
                         </button>
                     </div>
                     <div class="lower-part column">
+                        <button
+                            class="button button-primary"
+                            id="export-button"
+                            onclick="handleClickShare()"
+                        >
+                            Share Code
+                        </button>
                         <button
                             class="button button-primary"
                             id="export-button"

@@ -183,7 +183,7 @@ window.exportFile = (fileName) => {
 };
 
 window.handleClickExportCompiled = () => {
-    exportFile("main.wat");
+    exportFile("main.wasm");
 };
 
 window.handleClickExport = () => {

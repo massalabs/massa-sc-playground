@@ -4,15 +4,23 @@ import { Massa } from "./libs/massa-as-sdk.js";
 import { Envy } from "./libs/unittest.js";
 import { initMirrorContractValue, initMirrorTestValue } from "./libs/init-values.js";
 
+let initContractValue = initMirrorContractValue;
+let initTestValue = initMirrorContractValue;
+
 const SIZE_OFFSET = -4;
 const STRING_ID = 1;
 const utf16 = new TextDecoder("utf-16le", { fatal: true }); // != wtf16
 
-window.DecodeUrl = (url) => {
-    if (url.lastIndexOf("?") != -1)
-        initMirrorContractValue = atob(url.substring(url.lastIndexOf("?") + 1));
+window.DecodeUrl = () => {
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    const code = params.get("code");
+    const test = params.get("test");
+
+    initContractValue = code !== null ? decodeURIComponent(atob(code)) : initContractValue;
+    initTestValue = test !== null ? decodeURIComponent(atob(test)) : initMirrorTestValue;
 };
-DecodeUrl(window.location.href);
+DecodeUrl();
 
 function initCodeMirrors(fileName, initValue, id, value) {
     if (localStorage.getItem(fileName) == null || localStorage.getItem(fileName) == "") {
@@ -54,12 +62,12 @@ let mirrorTestValue;
 
 const mirrorContract = initCodeMirrors(
     "main.ts",
-    initMirrorContractValue,
+    initContractValue,
     "#mirror-contract",
     mirrorContractValue
 );
 
-const mirrorTest = initCodeMirrors("test.ts", initMirrorTestValue, "#mirror-test", mirrorTestValue);
+const mirrorTest = initCodeMirrors("test.ts", initTestValue, "#mirror-test", mirrorTestValue);
 
 let consoleValue = "";
 
@@ -151,8 +159,13 @@ window.compileAS = async function (inputFile, outputName, isWriteCompiled) {
 };
 
 window.ShareCode = () => {
-    let encoded = btoa(mirrorContract.getValue());
-    navigator.clipboard.writeText(window.location.href + "?" + encoded);
+    let contractEncoded = btoa(encodeURIComponent(mirrorContract.getValue()));
+    let unitTestEncoded = btoa(encodeURIComponent(mirrorTest.getValue()));
+
+    console.log(unitTestEncoded);
+    navigator.clipboard.writeText(
+        window.location.href + "?code=" + contractEncoded + "&test=" + unitTestEncoded
+    );
     // Alert the copied text
     alert("Link copied in clipboard");
 };

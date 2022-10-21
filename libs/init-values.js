@@ -27,7 +27,9 @@ describe("An other group of test", () => {
   })
 })`;
 
-export let initMirrorContractValue = `import { setOf, Address, generateEvent } from "@massalabs/massa-as-sdk"
+export let initMirrorContractValue = `// At the moment playground is limited in functionnalities 
+// Only simple Storage interactions are possible with getOf & setOf functions
+import { setOf, Address, generateEvent } from "@massalabs/massa-as-sdk"
 
 const testAddress = new Address(
   "A12E6N5BFAdC2wyiBV6VJjqkWhpz1kLVp2XpbRdSnL1mKjCWT6oR"

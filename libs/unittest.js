@@ -66,7 +66,7 @@ export const Envy = `
       
       @global function error(message:string): void {
         // const stdout = wasi_process.stderr;
-        write("Error:" + message);
+        write("Error: " + message);
       }
       
       @global function describe(name: string, callback: () => void): void {

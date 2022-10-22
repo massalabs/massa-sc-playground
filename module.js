@@ -4,19 +4,39 @@ import { Massa } from "./libs/massa-as-sdk.js";
 import { Envy } from "./libs/unittest.js";
 import { initMirrorContractValue, initMirrorTestValue } from "./libs/init-values.js";
 
+let initContractValue = initMirrorContractValue;
+let initTestValue = initMirrorContractValue;
 
 const SIZE_OFFSET = -4;
 const STRING_ID = 1;
 const utf16 = new TextDecoder("utf-16le", { fatal: true }); // != wtf16
 
-window.DecodeUrl = (url) => {
-    if (url.lastIndexOf("?") != -1)
-        initMirrorContractValue = atob(url.substring(url.lastIndexOf("?") + 1));
-};
-DecodeUrl(window.location.href);
+function parseURLParams() {
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    const code = params.get("code");
+    const test = params.get("test");
+    return {
+        code,
+        test,
+    };
+}
+function DecodeUrl() {
+    const params = parseURLParams();
+    initContractValue =
+        params.code !== null ? decodeURIComponent(atob(params.code)) : initContractValue;
+    initTestValue =
+        params.test !== null ? decodeURIComponent(atob(params.test)) : initMirrorTestValue;
+}
+
+DecodeUrl();
 
 function initCodeMirrors(fileName, initValue, id, value) {
-    if (localStorage.getItem(fileName) == null || localStorage.getItem(fileName) == "") {
+    if (
+        localStorage.getItem(fileName) == null ||
+        localStorage.getItem(fileName) == "" ||
+        (parseURLParams().code && parseURLParams().test)
+    ) {
         value = initValue;
     } else {
         value = localStorage.getItem(fileName);
@@ -27,11 +47,15 @@ function initCodeMirrors(fileName, initValue, id, value) {
         tabSize: 2,
         value: value,
         mode: "javascript",
-        theme: "monokai",
+        theme: "material-ocean",
     });
+
     mirror.setSize("100%", "100%");
     mirror.on("change", function (cm, change) {
-        localStorage.setItem(fileName, mirror.getValue());
+        // Do not update if code is from a sharing link in order top don't override contracts
+        if (!parseURLParams().code && !parseURLParams().params) {
+            localStorage.setItem(fileName, mirror.getValue());
+        }
     });
     mirror.setSize("100%", "100%");
     return mirror;
@@ -54,12 +78,12 @@ let mirrorTestValue;
 
 const mirrorContract = initCodeMirrors(
     "main.ts",
-    initMirrorContractValue,
+    initContractValue,
     "#mirror-contract",
     mirrorContractValue
 );
 
-const mirrorTest = initCodeMirrors("test.ts", initMirrorTestValue, "#mirror-test", mirrorTestValue);
+const mirrorTest = initCodeMirrors("test.ts", initTestValue, "#mirror-test", mirrorTestValue);
 
 let consoleValue = "";
 
@@ -79,16 +103,27 @@ function setConsoleValue(type, message) {
         if (type == "event") {
             headerSpan = `<span style="color: green">`;
         }
-        consoleValue += "<br>" + headerSpan + message + "</span>";
+        consoleValue += headerSpan + message + "</span>" + "<br>";
         $("#console").html(consoleValue);
     }
 }
 
-
+function scrollDownToConsole() {
+    $("#console").scrollTop($("#console")[0].scrollHeight);
+}
 
 // Compile Smart Contract
 const outputs = {};
 window.compileAS = async function (inputFile, outputName, isWriteCompiled) {
+    if (isWriteCompiled) {
+        setConsoleValue(
+            "log",
+            ` <br><br> ****************************
+        COMPILATION 
+        **************************** <br><br>`
+        );
+    }
+
     const contractFormatted = mirrorContract
         .getValue()
         .replace("@massalabs/massa-as-sdk", "./@massalabs/massa-as-sdk.ts");
@@ -113,20 +148,17 @@ window.compileAS = async function (inputFile, outputName, isWriteCompiled) {
             outputName + ".wasm",
             "--bindings",
             "raw",
-            '--exportRuntime',
+            "--exportRuntime",
         ],
         {
             readFile: (name, baseDir) => {
-                setConsoleValue("log", "readFile:" + name + ", baseDir=" + baseDir);
                 if (Object.prototype.hasOwnProperty.call(files, name)) return files[name];
                 return null;
             },
             writeFile: (name, data, baseDir) => {
-                setConsoleValue("log", "writeFile: " + name + ", baseDir=" + baseDir);
                 outputs[name] = data;
             },
             listFiles: (dirname, baseDir) => {
-                setConsoleValue("log", "listFiles:" + dirname + ", baseDir=" + baseDir);
                 return [];
             },
         }
@@ -134,17 +166,21 @@ window.compileAS = async function (inputFile, outputName, isWriteCompiled) {
     if (error) {
         setConsoleValue("error", "Compilation failed: " + error.message);
         setConsoleValue("error", stderr.toString());
-    }
-    else if (isWriteCompiled) {
+    } else if (isWriteCompiled) {
         setConsoleValue("log", stdout.toString());
         setConsoleValue("log", outputs[outputName + ".wat"]);
     }
+    scrollDownToConsole();
     return outputs;
-}
+};
 
-window.ShareCode = () => {
-    let encoded = btoa(mirrorContract.getValue());
-    navigator.clipboard.writeText(window.location.href + "?" + encoded);
+window.ShareCode = async () => {
+    let contractEncoded = btoa(encodeURIComponent(mirrorContract.getValue()));
+    let unitTestEncoded = btoa(encodeURIComponent(mirrorTest.getValue()));
+
+    await navigator.clipboard.writeText(
+        window.location.href + "?code=" + contractEncoded + "&test=" + unitTestEncoded
+    );
     // Alert the copied text
     alert("Link copied in clipboard");
 };
@@ -175,7 +211,7 @@ window.exportFile = (fileName) => {
 };
 
 window.handleClickExportCompiled = () => {
-    exportFile("main.wat");
+    exportFile("main.wasm");
 };
 
 window.handleClickExport = () => {
@@ -220,6 +256,12 @@ function newString(str, xpt) {
 }
 
 window.runUnitTest = async function () {
+    setConsoleValue(
+        "log",
+        ` <br><br> ****************************
+        TESTING 
+        **************************** <br><br>`
+    );
     // Compile Smart Contract
     const outputs = await window.compileAS("allFiles", "allFiles", false);
     const testModule = await WebAssembly.compile(outputs["allFiles.wasm"]);
@@ -234,7 +276,10 @@ window.runUnitTest = async function () {
                 const fileStr = getString(filePtr, instanceTest.exports);
                 const lineStr = getString(linePtr, instanceTest.exports);
                 const colStr = getString(colPtr, instanceTest.exports);
-                setConsoleValue("error", `Error : ${msgStr} in ${fileStr} at line ${lineStr}, col ${colStr} `);
+                setConsoleValue(
+                    "error",
+                    `Error : ${msgStr} in ${fileStr} at line ${lineStr}, col ${colStr} `
+                );
             },
             log(ptr) {
                 const msg = getString(ptr, instanceTest.exports);
@@ -277,4 +322,5 @@ window.runUnitTest = async function () {
     const instanceTest = await WebAssembly.instantiate(testModule, imports);
 
     instanceTest.exports._startTests();
+    scrollDownToConsole();
 };

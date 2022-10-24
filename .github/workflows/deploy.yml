@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - main
+      - 19-host-mvp-webpage-on-docsmassanet-8
   workflow_dispatch:
 
 env:

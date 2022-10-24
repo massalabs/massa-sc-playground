@@ -8,26 +8,10 @@ env:
   NODE_VERSION: '16.x'
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-
-    - uses: pnpm/action-setup@v2.2.2
-      with:
-        version: 7
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'pnpm'
-
-    - name: build
-      run: |
-        pnpm install --frozen-lockfile
-        pnpm build
-        pnpm generate
 
     - name: Deploy files
       uses: appleboy/scp-action@master
@@ -37,4 +21,4 @@ jobs:
         KEY: ${{ secrets.SSHKEY }}
       with:
         source: "."
-        target: "/var/www/playground"
+        target: "/var/www/sc-playground"

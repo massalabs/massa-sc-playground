@@ -319,8 +319,11 @@ window.runUnitTest = async function () {
         },
     };
 
-    const instanceTest = await WebAssembly.instantiate(testModule, imports);
+    const instanceTest = await WebAssembly.instantiate(testModule, imports).catch((err) => {
+        setConsoleValue("error", err);
+    });
 
-    instanceTest.exports._startTests();
+    await instanceTest.exports._startTests();
+
     scrollDownToConsole();
 };

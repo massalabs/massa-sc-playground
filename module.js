@@ -179,7 +179,7 @@ window.ShareCode = async () => {
     let unitTestEncoded = btoa(encodeURIComponent(mirrorTest.getValue()));
 
     await navigator.clipboard.writeText(
-        window.location.href + "?code=" + contractEncoded + "&test=" + unitTestEncoded
+        window.location.host + window.location.pathname + "?code=" + contractEncoded + "&test=" + unitTestEncoded
     );
     // Alert the copied text
     alert("Link copied in clipboard");

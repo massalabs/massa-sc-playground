@@ -178,11 +178,23 @@ window.ShareCode = async () => {
     let contractEncoded = btoa(encodeURIComponent(mirrorContract.getValue()));
     let unitTestEncoded = btoa(encodeURIComponent(mirrorTest.getValue()));
 
-    await navigator.clipboard.writeText(
-        window.location.host + window.location.pathname + "?code=" + contractEncoded + "&test=" + unitTestEncoded
-    );
+    const urlGenerated =
+        window.location.host +
+        window.location.pathname +
+        "?code=" +
+        contractEncoded +
+        "&test=" +
+        unitTestEncoded;
+
+    let alertMessage;
+    if (urlGenerated.length <= 4000) {
+        await navigator.clipboard.writeText(urlGenerated);
+        alertMessage = "Link copied in clipboard";
+    } else {
+        alertMessage = "Error: Code is too long to be shared through URL";
+    }
     // Alert the copied text
-    alert("Link copied in clipboard");
+    alert(alertMessage);
 };
 
 window.exportFile = (fileName) => {

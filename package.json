@@ -4,13 +4,8 @@
     "private": true,
     "description": "Assemblyscript playground that allows to compile &amp; play with smart contracts",
     "engines": {
-        "node": "^12.22.0 || ^14.17.0 || >=16.0.0"
+        "node": ">=16.18.0"
     },
-    "types": "types/index.d.ts",
-    "main": "dist/index.js",
-    "files": [
-        "dist"
-    ],
     "scripts": {
         "serve": "serve --no-clipboard",
         "watch": "nodemon --exec npm run serve"

@@ -191,7 +191,7 @@ window.ShareCode = async () => {
         await navigator.clipboard.writeText(urlGenerated);
         alertMessage = "Link copied in clipboard";
     } else {
-        alertMessage = "Error : Code is too long to be shared through URL";
+        alertMessage = "Error: Code is too long to be shared through URL";
     }
     // Alert the copied text
     alert(alertMessage);

@@ -33,14 +33,19 @@ async function httpFetch(theUrl) {
     return responseCall;
 }
 
-async function handleGitLink() {
+async function handleExtLink() {
     const params = parseURLParams();
-    if (params.extUnitTestUrl !== null) {
+    if (params.extUnitTestUrl !== null && params.extCodeUrl == null) {
         initContractValue = "";
         initTestValue = await httpFetch(params.extUnitTestUrl);
-    } else if (params.extCodeUrl !== null) {
+    }
+    if (params.extCodeUrl !== null && params.extUnitTestUrl == null) {
         initContractValue = await httpFetch(params.extCodeUrl);
         initTestValue = "";
+    }
+    if (params.extCodeUrl != null && params.extUnitTestUrl != null) {
+        initContractValue = await httpFetch(params.extCodeUrl);
+        initTestValue = await httpFetch(params.extUnitTestUrl);
     }
 }
 function DecodeUrl() {
@@ -49,7 +54,7 @@ function DecodeUrl() {
         params.code !== null ? decodeURIComponent(atob(params.code)) : initContractValue;
     initTestValue = params.test !== null ? decodeURIComponent(atob(params.test)) : initTestValue;
 }
-await handleGitLink();
+await handleExtLink();
 DecodeUrl();
 
 function initCodeMirrors(fileName, initValue, id, value) {

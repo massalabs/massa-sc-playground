@@ -25,6 +25,7 @@ function parseURLParams() {
         extUnitTestUrl,
     };
 }
+const params = parseURLParams();
 async function httpFetch(theUrl) {
     let responseCall;
     await fetch(theUrl).then(function (response) {
@@ -34,7 +35,6 @@ async function httpFetch(theUrl) {
 }
 
 async function handleExtLink() {
-    const params = parseURLParams();
     if (params.extUnitTestUrl !== null && params.extCodeUrl == null) {
         initContractValue = "";
         initTestValue = await httpFetch(params.extUnitTestUrl);
@@ -49,7 +49,6 @@ async function handleExtLink() {
     }
 }
 function DecodeUrl() {
-    const params = parseURLParams();
     initContractValue =
         params.code !== null ? decodeURIComponent(atob(params.code)) : initContractValue;
     initTestValue = params.test !== null ? decodeURIComponent(atob(params.test)) : initTestValue;

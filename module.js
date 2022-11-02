@@ -328,6 +328,9 @@ window.runUnitTest = async function () {
                 const ptr = newString(value, instanceTest.exports);
                 return ptr;
             },
+            assembly_script_unsafe_random() {
+                return BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString());
+            },
         },
     };
 

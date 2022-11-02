@@ -27,9 +27,15 @@ describe("An other group of test", () => {
   })
 })`;
 
-export let initMirrorContractValue = `// At the moment, the Playground has a few functionality limitations 
+export let initMirrorContractValue = `// At the moment, the Playground has a few functionality limitations
 // Only the simple Storage interactions are possible with getOf & setOf functions
-import { setOf, Address, generateEvent } from "@massalabs/massa-as-sdk"
+// Random Number generation is also possible with unsafeRandom function
+import {
+  setOf,
+  Address,
+  generateEvent,
+  unsafeRandom,
+} from "@massalabs/massa-as-sdk"
 
 const testAddress = new Address(
   "A12E6N5BFAdC2wyiBV6VJjqkWhpz1kLVp2XpbRdSnL1mKjCWT6oR"
@@ -37,7 +43,10 @@ const testAddress = new Address(
 
 export function setStorage(): void {
   setOf(testAddress, "test", "value")
+  
   generateEvent("'value' has been set to key 'test'")
+
+  generateEvent("random number generation " + unsafeRandom().toString())
 }
 
 export function event(): void {

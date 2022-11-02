@@ -1,39 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Massa | Smart-contract Playground</title>
-        <meta
-            name="description"
-            content="Write, test, compile, and share Massa's smart-contract code"
-        />
+        <meta name="description" content="Write, test, compile, and share Massa's smart-contract code" />
         <link rel="icon" href="favicons/favicon-32x32.png" />
         <link rel="stylesheet" href="index.css" />
 
-        <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.css"
-        />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.css" />
 
-        <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/theme/material-ocean.min.css"
-        />
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/theme/material-ocean.min.css" />
 
-        <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
             integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A=="
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer"
-        />
+            crossorigin="anonymous" referrerpolicy="no-referrer" />
 
         <!-- Bootstrap Font Icon CSS -->
-        <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css"
-        />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" />
 
         <script type="importmap">
             {
@@ -47,27 +33,14 @@
                 }
             }
         </script>
-        <script
-            type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.js"
-        ></script>
-        <script
-            async
-            src="https://cdn.jsdelivr.net/npm/es-module-shims@1/dist/es-module-shims.js"
-        ></script>
+        <script type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.js"></script>
+        <script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1/dist/es-module-shims.js"></script>
         <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
-        <script
-            type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/mode/javascript/javascript.min.js"
-        ></script>
-        <script
-            type="text/javascript"
-            src="https://unpkg.com/prettier@2.7.1/standalone.js"
-        ></script>
-        <script
-            type="text/javascript"
-            src="https://unpkg.com/prettier@2.7.1/esm/parser-typescript.mjs"
-        ></script>
+        <script type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/mode/javascript/javascript.min.js"></script>
+        <script type="text/javascript" src="https://unpkg.com/prettier@2.7.1/standalone.js"></script>
+        <script type="text/javascript" src="https://unpkg.com/prettier@2.7.1/esm/parser-typescript.mjs"></script>
 
         <script type="module" src="module.js"></script>
     </head>
@@ -78,62 +51,34 @@
                 <div class="column">
                     <h2>SMART-CONTRACT PLAYGROUND</h2>
                     <div class="upper-part column">
-                        <button
-                            class="button button-primary"
-                            id="export-button"
-                            onclick="handleClickFormat()"
-                        >
+                        <button class="button button-primary" id="export-button" onclick="handleClickFormat()">
                             Format Code
                         </button>
-                        <button
-                            class="button button-primary"
-                            id="compile-button"
-                            onclick="handleClickCompile()"
-                        >
+                        <button class="button button-primary" id="compile-button" onclick="handleClickCompile()">
                             Compile
                         </button>
-                        <button
-                            class="button button-primary"
-                            id="export-button"
-                            onclick="handleClickRunTests()"
-                        >
+                        <button class="button button-primary" id="export-button" onclick="handleClickRunTests()">
                             Test
                         </button>
-                        <button
-                            class="button button-primary"
-                            id="clear-console"
-                            onclick="handleClickClear()"
-                        >
+                        <button class="button button-primary" id="clear-console" onclick="handleClickClear()">
                             Clear Console
                         </button>
+                        <button class="button button-primary" id="simulate-button" onclick="handleClickSimulate()">
+                            Simulate
+                        </button>
+                        <input class="website-file-input" id="upload" type="file" accept=".json"/>
                     </div>
                     <div class="lower-part column">
-                        <button
-                            class="button button-primary"
-                            id="export-button"
-                            onclick="handleClickShare()"
-                        >
+                        <button class="button button-primary" id="export-button" onclick="handleClickShare()">
                             Share Code
                         </button>
-                        <button
-                            class="button button-primary"
-                            id="export-button"
-                            onclick="handleClickExport()"
-                        >
+                        <button class="button button-primary" id="export-button" onclick="handleClickExport()">
                             Export Input
                         </button>
-                        <button
-                            class="button button-primary"
-                            id="export-button"
-                            onclick="handleClickExportCompiled()"
-                        >
+                        <button class="button button-primary" id="export-button" onclick="handleClickExportCompiled()">
                             Export Compiled File
                         </button>
-                        <button
-                            class="button button-danger"
-                            id="export-button"
-                            onclick="handleClickDiscard()"
-                        >
+                        <button class="button button-danger" id="export-button" onclick="handleClickDiscard()">
                             Remove File
                         </button>
                     </div>
@@ -147,4 +92,5 @@
             <div id="console"></div>
         </div>
     </body>
+
 </html>

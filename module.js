@@ -223,6 +223,10 @@ window.exportFile = (fileName) => {
 };
 
 window.handleClickExportCompiled = () => {
+    //If contract is not Compiled, Compile Smart Contract before exporting
+    if (outputs["main.wasm"] == null) {
+        compileAS("main", "main", false);
+    }
     exportFile("main.wasm");
 };
 
@@ -239,6 +243,150 @@ window.handleClickCompile = () => {
 window.handleClickClear = () => {
     setConsoleValue("clear", "");
 };
+
+// Permit to select .json file in the file explorer
+window.handleClickSimulate = async () => {
+    // Trigger the input file explorer
+    const executionConfigFile = await document.getElementById("upload").click();
+
+    // Start Export Compiled File and send the file to the simulator
+    // Compile the contract
+    compileAS("main", "main", false).then(
+        (outputs) => {
+            // Create the compiled file to the simulator
+            const file = new File([outputs["main.wasm"]], "main.wasm", {
+                type: "application/wasm",
+            });
+            // Create the form data
+            const formData = new FormData();
+            //Adding wasm file to the form data
+            formData.append("file", file);
+            //Adding Configuration file to the form data
+            formData.append("config", executionConfigFile);
+
+            // Send the file to the simulator
+            fetch("http://localhost:8080/simulate", {
+                method: "POST",
+                body: formData,
+            })
+                //Todo handle the response, maybe the response will be asynchrone and take time to be ready
+                .then((response) => response.text())
+                .then((text) => {
+                    setConsoleValue(
+                        "log",
+                        ` <br><br> ****************************
+            SIMULATION 
+            **************************** <br><br>`
+                    );
+                    setConsoleValue("log", text);
+                    scrollDownToConsole();
+                })
+                .then(getTraceFileFromSimulator)
+                .then(getLedgerFileFromSimulator);
+            // Handle Trace Result
+            // Handle Ledger Result
+        },
+        (error) => {
+            setConsoleValue("error", "Uploading Contract to simulator failed : " + error.message);
+            setConsoleValue("error", stderr.toString());
+        }
+    );
+
+    // 	curl -X POST http://localhost:8080/upload \
+    //   -F "files=@./simulator_config.json" \
+    //   -F "files=@./main.wasm" \
+    //   -H "Content-Type: multipart/form-data"
+};
+
+//Parse the Json file to get all the name of "execute_step" and print it in the console
+const handleTraceResult = (traceResult) => {
+    const a = (output) => {
+        traceResult.execute_slot.output.forEach(
+            (element) => {
+                if (element["name"] == "output") {
+                    a(element["output"]);
+                    setConsoleValue("log", Object.keys(element));
+                }
+                //Display the key output of the element
+                setConsoleValue("log", Object.keys(element));
+            },
+            (error) => {
+                setConsoleValue(
+                    "error",
+                    "Uploading Contract to simulator failed : " + error.message
+                );
+                setConsoleValue("error", stderr.toString());
+            }
+        );
+
+        const traceResultJson = JSON.parse(traceResult);
+        traceResultJson.forEach((element) => {
+            const stepName = element["execute_step"]["name"];
+            setConsoleValue("log", `Step Name : ${stepName} <br>`);
+        });
+    };
+
+    //TODO : Get Request to the simulator to get the trace file
+    const getTraceFileFromSimulator = () => {
+        let traceResult;
+        fetch("http://localhost:8080/upload", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Content-Disposition": (filename = "trace.json"),
+            },
+        })
+            .then((response) => response.text())
+            .then((text) => {
+                setConsoleValue(
+                    "log",
+                    ` <br><br> ****************************
+        SIMULATION TRACE RESULT 
+        **************************** <br><br>`
+                );
+                setConsoleValue("log", text);
+                scrollDownToConsole();
+            })
+            .then(() => {
+                var file = window.URL.createObjectURL(traceResult);
+                window.location.assign(file);
+            });
+        //TODO : Handle the error
+        //TODO : Handle the trace file name
+    };
+    //TODO : Get Request to the simulator to get the legdger file
+    const getLedgerFileFromSimulator = () => {
+        let ledgerResult;
+        fetch("http://localhost:8080/upload", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Content-Disposition": (filename = "ledger.json"),
+            },
+        })
+            .then((response) => {
+                ledgerResult = response;
+                response.text();
+            })
+            .then((text) => {
+                setConsoleValue(
+                    "log",
+                    ` <br><br> ****************************
+        SIMULATION LEDGER RESULT 
+        **************************** <br><br>`
+                );
+                setConsoleValue("log", text);
+                scrollDownToConsole();
+            })
+            .then(() => {
+                var file = window.URL.createObjectURL(ledgerResult);
+                window.location.assign(file);
+            });
+        //TODO : Handle the error
+        //TODO : Handle the ledger file name
+    };
+};
+
 window.handleClickFormat = () => formatCode([mirrorContract, mirrorTest]);
 
 window.handleClickDiscard = () => {

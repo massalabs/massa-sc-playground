@@ -5,7 +5,7 @@ import { Envy } from "./libs/unittest.js";
 import { initMirrorContractValue, initMirrorTestValue } from "./libs/init-values.js";
 
 let initContractValue = initMirrorContractValue;
-let initTestValue = initMirrorContractValue;
+let initTestValue = initMirrorTestValue;
 
 const SIZE_OFFSET = -4;
 const STRING_ID = 1;
@@ -16,26 +16,56 @@ function parseURLParams() {
     const params = new URLSearchParams(url.search);
     const code = params.get("code");
     const test = params.get("test");
+    const extCodeUrl = params.get("ext_code_url");
+    const extUnitTestUrl = params.get("ext_unit_test_url");
     return {
         code,
         test,
+        extCodeUrl,
+        extUnitTestUrl,
     };
 }
-function DecodeUrl() {
-    const params = parseURLParams();
-    initContractValue =
-        params.code !== null ? decodeURIComponent(atob(params.code)) : initContractValue;
-    initTestValue =
-        params.test !== null ? decodeURIComponent(atob(params.test)) : initMirrorTestValue;
+const params = parseURLParams();
+async function httpFetch(theUrl) {
+    let responseCall;
+    await fetch(theUrl).then(function (response) {
+        responseCall = response.text();
+    });
+    return responseCall;
 }
 
+async function handleExtLink() {
+    if (params.extUnitTestUrl !== null && params.extCodeUrl == null) {
+        initContractValue = "";
+        initTestValue = await httpFetch(params.extUnitTestUrl);
+    }
+    if (params.extCodeUrl !== null && params.extUnitTestUrl == null) {
+        initContractValue = await httpFetch(params.extCodeUrl);
+        initTestValue = "";
+    }
+    if (params.extCodeUrl != null && params.extUnitTestUrl != null) {
+        initContractValue = await httpFetch(params.extCodeUrl);
+        initTestValue = await httpFetch(params.extUnitTestUrl);
+    }
+}
+function DecodeUrl() {
+    if (params.code !== null) {
+        initContractValue = decodeURIComponent(atob(params.code));
+    }
+    if (params.test !== null) {
+        initTestValue = decodeURIComponent(atob(params.test));
+    }
+}
+await handleExtLink();
 DecodeUrl();
 
 function initCodeMirrors(fileName, initValue, id, value) {
     if (
         localStorage.getItem(fileName) == null ||
         localStorage.getItem(fileName) == "" ||
-        (parseURLParams().code && parseURLParams().test)
+        (parseURLParams().code && parseURLParams().test) ||
+        parseURLParams().extCodeUrl ||
+        parseURLParams().extUnitTestUrl
     ) {
         value = initValue;
     } else {

@@ -5,7 +5,7 @@ import { Envy } from "./libs/unittest.js";
 import { initMirrorContractValue, initMirrorTestValue } from "./libs/init-values.js";
 
 let initContractValue = initMirrorContractValue;
-let initTestValue = initMirrorContractValue;
+let initTestValue = initMirrorTestValue;
 
 const SIZE_OFFSET = -4;
 const STRING_ID = 1;
@@ -16,19 +16,52 @@ function parseURLParams() {
     const params = new URLSearchParams(url.search);
     const code = params.get("code");
     const test = params.get("test");
+    const gitCode = params.get("gitcode");
+    const gitTest = params.get("gittest");
     return {
         code,
         test,
+        gitCode,
+        gitTest,
     };
+}
+
+async function httpGet(theUrl) {
+    let xmlhttp;
+
+    if (window.XMLHttpRequest) {
+        // code for IE7+, Firefox, Chrome, Opera, Safari
+        xmlhttp = new XMLHttpRequest();
+    } else {
+        // code for IE6, IE5
+        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            return xmlhttp.responseText;
+        }
+    };
+    xmlhttp.open("GET", theUrl, false);
+    xmlhttp.send();
+
+    return xmlhttp.response;
+}
+
+async function handleGitLink() {
+    const params = parseURLParams();
+    initContractValue = params.gitTest !== null ? "" : initContractValue;
+    initContractValue = params.gitCode !== null ? await httpGet(params.gitCode) : initContractValue;
+    initTestValue = params.gitCode != null ? "" : initTestValue;
+    initTestValue = params.gitTest !== null ? await httpGet(params.gitTest) : initTestValue;
 }
 function DecodeUrl() {
     const params = parseURLParams();
     initContractValue =
         params.code !== null ? decodeURIComponent(atob(params.code)) : initContractValue;
-    initTestValue =
-        params.test !== null ? decodeURIComponent(atob(params.test)) : initMirrorTestValue;
+    initTestValue = params.test !== null ? decodeURIComponent(atob(params.test)) : initTestValue;
 }
-
+await handleGitLink();
 DecodeUrl();
 
 function initCodeMirrors(fileName, initValue, id, value) {

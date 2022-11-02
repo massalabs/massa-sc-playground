@@ -244,30 +244,40 @@ window.handleClickClear = () => {
     setConsoleValue("clear", "");
 };
 
+window.handleClickUploadExecutionConfig = () => {
+    $("#file-upload").click();
+};
+
 // Permit to select .json file in the file explorer
 window.handleClickSimulate = async () => {
     // Trigger the input file explorer
-    const executionConfigFile = await document.getElementById("upload").click();
+    const executionConfigFile = document.getElementById("file-upload");
+    console.log(executionConfigFile);
 
     // Start Export Compiled File and send the file to the simulator
     // Compile the contract
     compileAS("main", "main", false).then(
         (outputs) => {
             // Create the compiled file to the simulator
-            const file = new File([outputs["main.wasm"]], "main.wasm", {
+            const Scfile = new File([outputs["main.wasm"]], "main.wasm", {
                 type: "application/wasm",
             });
             // Create the form data
             const formData = new FormData();
+            let files = [Scfile, executionConfigFile.files[0]];
             //Adding wasm file to the form data
-            formData.append("file", file);
+            // formData.append("files", Scfile);
             //Adding Configuration file to the form data
-            formData.append("config", executionConfigFile);
+            // formData.append("files", executionConfigFile);
+            formData.append("files", files);
 
             // Send the file to the simulator
             fetch("http://localhost:8080/simulate", {
                 method: "POST",
                 body: formData,
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
             })
                 //Todo handle the response, maybe the response will be asynchrone and take time to be ready
                 .then((response) => response.text())

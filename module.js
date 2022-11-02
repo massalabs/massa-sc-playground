@@ -16,44 +16,32 @@ function parseURLParams() {
     const params = new URLSearchParams(url.search);
     const code = params.get("code");
     const test = params.get("test");
-    const gitCode = params.get("gitcode");
-    const gitTest = params.get("gittest");
+    const extCodeUrl = params.get("ext_code_url");
+    const extUnitTestUrl = params.get("ext_unit_test_url");
     return {
         code,
         test,
-        gitCode,
-        gitTest,
+        extCodeUrl,
+        extUnitTestUrl,
     };
 }
-
-async function httpGet(theUrl) {
-    let xmlhttp;
-
-    if (window.XMLHttpRequest) {
-        // code for IE7+, Firefox, Chrome, Opera, Safari
-        xmlhttp = new XMLHttpRequest();
-    } else {
-        // code for IE6, IE5
-        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-    }
-
-    xmlhttp.onreadystatechange = function () {
-        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-            return xmlhttp.responseText;
-        }
-    };
-    xmlhttp.open("GET", theUrl, false);
-    xmlhttp.send();
-
-    return xmlhttp.response;
+async function httpFetch(theUrl) {
+    let responseCall;
+    await fetch(theUrl).then(function (response) {
+        responseCall = response.text();
+    });
+    return responseCall;
 }
 
 async function handleGitLink() {
     const params = parseURLParams();
-    initContractValue = params.gitTest !== null ? "" : initContractValue;
-    initContractValue = params.gitCode !== null ? await httpGet(params.gitCode) : initContractValue;
-    initTestValue = params.gitCode != null ? "" : initTestValue;
-    initTestValue = params.gitTest !== null ? await httpGet(params.gitTest) : initTestValue;
+    if (params.extUnitTestUrl !== null) {
+        initContractValue = "";
+        initTestValue = await httpFetch(params.extUnitTestUrl);
+    } else if (params.extCodeUrl !== null) {
+        initContractValue = await httpFetch(params.extCodeUrl);
+        initTestValue = "";
+    }
 }
 function DecodeUrl() {
     const params = parseURLParams();
@@ -69,8 +57,8 @@ function initCodeMirrors(fileName, initValue, id, value) {
         localStorage.getItem(fileName) == null ||
         localStorage.getItem(fileName) == "" ||
         (parseURLParams().code && parseURLParams().test) ||
-        parseURLParams().gitCode ||
-        parseURLParams().gitTest
+        parseURLParams().extCodeUrl ||
+        parseURLParams().extUnitTestUrl
     ) {
         value = initValue;
     } else {

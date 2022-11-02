@@ -68,7 +68,9 @@ function initCodeMirrors(fileName, initValue, id, value) {
     if (
         localStorage.getItem(fileName) == null ||
         localStorage.getItem(fileName) == "" ||
-        (parseURLParams().code && parseURLParams().test)
+        (parseURLParams().code && parseURLParams().test) ||
+        parseURLParams().gitCode ||
+        parseURLParams().gitTest
     ) {
         value = initValue;
     } else {

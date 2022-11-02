@@ -49,9 +49,12 @@ async function handleExtLink() {
     }
 }
 function DecodeUrl() {
-    initContractValue =
-        params.code !== null ? decodeURIComponent(atob(params.code)) : initContractValue;
-    initTestValue = params.test !== null ? decodeURIComponent(atob(params.test)) : initTestValue;
+    if (params.code !== null) {
+        initContractValue = decodeURIComponent(atob(params.code));
+    }
+    if (params.test !== null) {
+        initTestValue = decodeURIComponent(atob(params.test));
+    }
 }
 await handleExtLink();
 DecodeUrl();

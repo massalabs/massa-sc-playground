@@ -252,7 +252,33 @@ window.handleClickUploadExecutionConfig = () => {
     $("#file-upload").click();
 };
 
-// Permit to select .json file in the file explorer
+// testPluginPresence();
+// //update UI to hide Simulate and Upload Buttons if not connected to the plugin
+const testPluginPresence = () => {
+    try {
+        fetch("http://localhost:8080/", {
+            method: "HEAD",
+            mode: "no-cors",
+        })
+        .then((response) => {
+            if (response.status != 200) {
+                document.getElementById("simulate-button").style.display = "none";
+                document.getElementById("upload-execution").style.display = "none";
+            }
+        }
+        )
+        .catch((error) => {
+            console.log("Simulate functionnalities not available due to plugin not being connected");
+            document.getElementById("simulate-button").style.display = "none";
+            document.getElementById("upload-execution").style.display = "none";
+        });
+        
+    } catch (error) {
+        console.log("Simulate button not available due to plugin not being connected");
+    }
+}
+testPluginPresence();
+
 window.handleClickSimulate = async () => {
     // Trigger the input file explorer
     const executionConfigFile = document.getElementById("file-upload");
@@ -306,10 +332,6 @@ window.handleClickSimulate = async () => {
         }
     );
 })
-    // 	curl -X POST http://localhost:8080/upload \
-    //   -F "files=@./simulator_config.json" \
-    //   -F "files=@./main.wasm" \
-    //   -H "Content-Type: multipart/form-data"
 };
 
 //Parse the Json file to get all the name of "execute_step" and print it in the console

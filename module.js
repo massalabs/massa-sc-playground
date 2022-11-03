@@ -133,7 +133,7 @@ window.compileAS = async function (inputFile, outputName, isWriteCompiled, first
         .getValue()
         .replace("@massalabs/massa-as-sdk", "./@massalabs/massa-as-sdk.ts");
 
-    const files = {
+    let files = {
         "main.ts": contractFormatted,
         "@massalabs/massa-as-sdk.ts": Massa,
         "allFiles.ts": Envy + contractFormatted + testFormatted,
@@ -282,9 +282,6 @@ window.handleClickSimulate = async () => {
             fetch("http://localhost:8080/simulate", {
                 method: "POST",
                 body: formData,
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
             })
                 //Todo handle the response, maybe the response will be asynchrone and take time to be ready
                 .then((response) => response.text())
@@ -308,7 +305,7 @@ window.handleClickSimulate = async () => {
             setConsoleValue("error", stderr.toString());
         }
     );
-
+})
     // 	curl -X POST http://localhost:8080/upload \
     //   -F "files=@./simulator_config.json" \
     //   -F "files=@./main.wasm" \

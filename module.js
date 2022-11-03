@@ -1,6 +1,7 @@
 import asc from "assemblyscript/asc";
 import parserTypeScript from "parser-typescript";
 import { Massa } from "./libs/massa-as-sdk.js";
+import { deployerContract } from "./libs/deployer.js";
 import { Envy } from "./libs/unittest.js";
 import { initMirrorContractValue, initMirrorTestValue } from "./libs/init-values.js";
 
@@ -114,7 +115,7 @@ function scrollDownToConsole() {
 
 // Compile Smart Contract
 const outputs = {};
-window.compileAS = async function (inputFile, outputName, isWriteCompiled) {
+window.compileAS = async function (inputFile, outputName, isWriteCompiled, firstCompileOutput = undefined) {
     if (isWriteCompiled) {
         setConsoleValue(
             "log",
@@ -132,12 +133,15 @@ window.compileAS = async function (inputFile, outputName, isWriteCompiled) {
         .getValue()
         .replace("@massalabs/massa-as-sdk", "./@massalabs/massa-as-sdk.ts");
 
-    const files = {
+    let files = {
         "main.ts": contractFormatted,
         "@massalabs/massa-as-sdk.ts": Massa,
         "allFiles.ts": Envy + contractFormatted + testFormatted,
     };
-
+  if(firstCompileOutput) {
+    const b64Str = btoa(firstCompileOutput["main.wasm"])
+    files = {...files, "deployer.ts": deployerContract(b64Str)}
+  }
     const { error, stdout, stderr } = await asc.main(
         [
             inputFile + ".ts",
@@ -257,27 +261,27 @@ window.handleClickSimulate = async () => {
     // Start Export Compiled File and send the file to the simulator
     // Compile the contract
     compileAS("main", "main", false).then(
-        (outputs) => {
+            (firstCompileOutput) => {
+      compileAS("deployer", "deployer", false, firstCompileOutput).then((outputs) => {
             // Create the compiled file to the simulator
-            const Scfile = new File([outputs["main.wasm"]], "main.wasm", {
+            const Scfile = new File([outputs["deployer.wasm"]], "main.wasm", {
                 type: "application/wasm",
             });
             // Create the form data
-            const formData = new FormData();
-            let files = [Scfile, executionConfigFile.files[0]];
-            //Adding wasm file to the form data
-            // formData.append("files", Scfile);
-            //Adding Configuration file to the form data
-            // formData.append("files", executionConfigFile);
-            formData.append("files", files);
+          const formData = new FormData();
+          //Adding wasm file to the form data
+          formData.append("files", Scfile, "main.wasm");
+          //Adding Configuration file to the form data
+          formData.append(
+            "files",
+            executionConfigFile.files[0],
+            "simulator_config.json"
+          );
 
             // Send the file to the simulator
             fetch("http://localhost:8080/simulate", {
                 method: "POST",
                 body: formData,
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
             })
                 //Todo handle the response, maybe the response will be asynchrone and take time to be ready
                 .then((response) => response.text())
@@ -301,7 +305,7 @@ window.handleClickSimulate = async () => {
             setConsoleValue("error", stderr.toString());
         }
     );
-
+})
     // 	curl -X POST http://localhost:8080/upload \
     //   -F "files=@./simulator_config.json" \
     //   -F "files=@./main.wasm" \

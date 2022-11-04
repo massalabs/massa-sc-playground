@@ -284,9 +284,9 @@ const displayUrlFilesFromSimulator = () => {
         ` <br><br> ****************************
     SIMULATION LEDGER and TRACE RESULT 
     **************************** <br><br>
-    https://localhost:8080/simulator/ledger.json
+    localhost:8080/simulator/ledger.json
     <br>
-    https://localhost:8080/simulator/trace.json`
+    localhost:8080/simulator/trace.json`
     );
     scrollDownToConsole();
 };

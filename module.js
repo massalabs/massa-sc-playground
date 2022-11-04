@@ -261,10 +261,16 @@ window.handleClickUploadExecutionConfig = () => {
 // //update UI to hide Simulate and Upload Buttons if not connected to the plugin
 const testPluginPresence = () => {
     try {
-        fetch("http://localhost:8080/", {
+        fetch("/simulator/trace.json", {
             method: "HEAD",
             mode: "no-cors",
-        }).catch((error) => {
+        }).then((response) => {
+            if (response.status == 404) {
+                document.getElementById("simulate-button").style.display = "none";
+                document.getElementById("upload-execution").style.display = "none";
+            }
+        })
+        .catch(() => {
             console.log(
                 "Simulate functionnalities not available due to plugin not being connected"
             );
@@ -284,9 +290,9 @@ const displayUrlFilesFromSimulator = () => {
         ` <br><br> ****************************
     SIMULATION LEDGER and TRACE RESULT 
     **************************** <br><br>
-    localhost:8080/simulator/ledger.json
+    ${window.location.host}/simulator/ledger.json
     <br>
-    localhost:8080/simulator/trace.json`
+    ${window.location.host}/simulator/trace.json`
     );
     scrollDownToConsole();
 };
@@ -312,7 +318,7 @@ window.handleClickSimulate = () => {
                 formData.append("files", executionConfigFile.files[0], "simulator_config.json");
 
                 // Send the file to the simulator
-                fetch("http://localhost:8080/simulate", {
+                fetch(window.location.host+"/simulate", {
                     method: "POST",
                     body: formData,
                     mode: "no-cors",
@@ -340,8 +346,6 @@ window.handleClickSimulate = () => {
             }
         );
     });
-};
-
 };
 
 window.handleClickFormat = () => formatCode([mirrorContract, mirrorTest]);

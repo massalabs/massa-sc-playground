@@ -115,7 +115,12 @@ function scrollDownToConsole() {
 
 // Compile Smart Contract
 const outputs = {};
-window.compileAS = async function (inputFile, outputName, isWriteCompiled, firstCompileOutput = undefined) {
+window.compileAS = async function (
+    inputFile,
+    outputName,
+    isWriteCompiled,
+    firstCompileOutput = undefined
+) {
     if (isWriteCompiled) {
         setConsoleValue(
             "log",
@@ -138,10 +143,10 @@ window.compileAS = async function (inputFile, outputName, isWriteCompiled, first
         "@massalabs/massa-as-sdk.ts": Massa,
         "allFiles.ts": Envy + contractFormatted + testFormatted,
     };
-  if(firstCompileOutput) {
-    const b64Str = btoa(firstCompileOutput["main.wasm"])
-    files = {...files, "deployer.ts": deployerContract(b64Str)}
-  }
+    if (firstCompileOutput) {
+        const b64Str = btoa(firstCompileOutput["main.wasm"]);
+        files = { ...files, "deployer.ts": deployerContract(b64Str) };
+    }
     const { error, stdout, stderr } = await asc.main(
         [
             inputFile + ".ts",
@@ -259,92 +264,72 @@ const testPluginPresence = () => {
         fetch("http://localhost:8080/", {
             method: "HEAD",
             mode: "no-cors",
-        })
-        .then((response) => {
-            if (response.status != 200) {
-                document.getElementById("simulate-button").style.display = "none";
-                document.getElementById("upload-execution").style.display = "none";
-            }
-        }
-        )
-        .catch((error) => {
-            console.log("Simulate functionnalities not available due to plugin not being connected");
+        }).catch((error) => {
+            console.log(
+                "Simulate functionnalities not available due to plugin not being connected"
+            );
             document.getElementById("simulate-button").style.display = "none";
             document.getElementById("upload-execution").style.display = "none";
         });
-        
     } catch (error) {
         console.log("Simulate button not available due to plugin not being connected");
     }
-}
+};
 testPluginPresence();
 
-window.handleClickSimulate = async () => {
+//TODO : Get Request to the simulator to get the legdger file
+const displayUrlFilesFromSimulator = () => {
+    setConsoleValue(
+        "log",
+        ` <br><br> ****************************
+    SIMULATION LEDGER and TRACE RESULT 
+    **************************** <br><br>
+    https://localhost:8080/simulator/ledger.json
+    <br>
+    https://localhost:8080/simulator/trace.json`
+    );
+    scrollDownToConsole();
+};
+
+window.handleClickSimulate = () => {
     // Trigger the input file explorer
     const executionConfigFile = document.getElementById("file-upload");
-    console.log(executionConfigFile);
 
     // Start Export Compiled File and send the file to the simulator
     // Compile the contract
-    compileAS("main", "main", false).then(
-            (firstCompileOutput) => {
-      compileAS("deployer", "deployer", false, firstCompileOutput).then((outputs) => {
-            // Create the compiled file to the simulator
-            const Scfile = new File([outputs["deployer.wasm"]], "main.wasm", {
-                type: "application/wasm",
-            });
-            // Create the form data
-          const formData = new FormData();
-          //Adding wasm file to the form data
-          formData.append("files", Scfile, "main.wasm");
-          //Adding Configuration file to the form data
-          formData.append(
-            "files",
-            executionConfigFile.files[0],
-            "simulator_config.json"
-          );
+    compileAS("main", "main", false).then((firstCompileOutput) => {
+        compileAS("deployer", "deployer", false, firstCompileOutput).then(
+            (outputs) => {
+                // Create the compiled file to the simulator
+                const Scfile = new File([outputs["deployer.wasm"]], "main.wasm", {
+                    type: "application/wasm",
+                });
+                // Create the form data
+                const formData = new FormData();
+                //Adding wasm file to the form data
+                formData.append("files", Scfile, "main.wasm");
+                //Adding Configuration file to the form data
+                formData.append("files", executionConfigFile.files[0], "simulator_config.json");
 
-            // Send the file to the simulator
-            fetch("http://localhost:8080/simulate", {
-                method: "POST",
-                body: formData,
-            })
-                //Todo handle the response, maybe the response will be asynchrone and take time to be ready
-                .then((response) => response.text())
-                .then((text) => {
-                    setConsoleValue(
-                        "log",
-                        ` <br><br> ****************************
-            SIMULATION 
-            **************************** <br><br>`
-                    );
-                    setConsoleValue("log", text);
-                    scrollDownToConsole();
+                // Send the file to the simulator
+                fetch("http://localhost:8080/simulate", {
+                    method: "POST",
+                    body: formData,
+                    mode: "no-cors",
                 })
-                .then(getTraceFileFromSimulator)
-                .then(getLedgerFileFromSimulator);
-            // Handle Trace Result
-            // Handle Ledger Result
-        },
-        (error) => {
-            setConsoleValue("error", "Uploading Contract to simulator failed : " + error.message);
-            setConsoleValue("error", stderr.toString());
-        }
-    );
-})
-};
-
-//Parse the Json file to get all the name of "execute_step" and print it in the console
-const handleTraceResult = (traceResult) => {
-    const a = (output) => {
-        traceResult.execute_slot.output.forEach(
-            (element) => {
-                if (element["name"] == "output") {
-                    a(element["output"]);
-                    setConsoleValue("log", Object.keys(element));
-                }
-                //Display the key output of the element
-                setConsoleValue("log", Object.keys(element));
+                    //Todo handle the response, maybe the response will be asynchrone and take time to be ready
+                    .then((response) => response.text())
+                    .then((text) => {
+                        setConsoleValue(
+                            "log",
+                            ` <br><br> ****************************
+            SIMULATION Processing
+            **************************** <br><br>`
+                        );
+                        setConsoleValue("log", text);
+                        scrollDownToConsole();
+                    })
+                    .then(displayUrlFilesFromSimulator)
             },
             (error) => {
                 setConsoleValue(
@@ -354,73 +339,9 @@ const handleTraceResult = (traceResult) => {
                 setConsoleValue("error", stderr.toString());
             }
         );
+    });
+};
 
-        const traceResultJson = JSON.parse(traceResult);
-        traceResultJson.forEach((element) => {
-            const stepName = element["execute_step"]["name"];
-            setConsoleValue("log", `Step Name : ${stepName} <br>`);
-        });
-    };
-
-    //TODO : Get Request to the simulator to get the trace file
-    const getTraceFileFromSimulator = () => {
-        let traceResult;
-        fetch("http://localhost:8080/upload", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Content-Disposition": (filename = "trace.json"),
-            },
-        })
-            .then((response) => response.text())
-            .then((text) => {
-                setConsoleValue(
-                    "log",
-                    ` <br><br> ****************************
-        SIMULATION TRACE RESULT 
-        **************************** <br><br>`
-                );
-                setConsoleValue("log", text);
-                scrollDownToConsole();
-            })
-            .then(() => {
-                var file = window.URL.createObjectURL(traceResult);
-                window.location.assign(file);
-            });
-        //TODO : Handle the error
-        //TODO : Handle the trace file name
-    };
-    //TODO : Get Request to the simulator to get the legdger file
-    const getLedgerFileFromSimulator = () => {
-        let ledgerResult;
-        fetch("http://localhost:8080/upload", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Content-Disposition": (filename = "ledger.json"),
-            },
-        })
-            .then((response) => {
-                ledgerResult = response;
-                response.text();
-            })
-            .then((text) => {
-                setConsoleValue(
-                    "log",
-                    ` <br><br> ****************************
-        SIMULATION LEDGER RESULT 
-        **************************** <br><br>`
-                );
-                setConsoleValue("log", text);
-                scrollDownToConsole();
-            })
-            .then(() => {
-                var file = window.URL.createObjectURL(ledgerResult);
-                window.location.assign(file);
-            });
-        //TODO : Handle the error
-        //TODO : Handle the ledger file name
-    };
 };
 
 window.handleClickFormat = () => formatCode([mirrorContract, mirrorTest]);

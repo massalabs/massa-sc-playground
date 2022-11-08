@@ -257,8 +257,7 @@ window.handleClickUploadExecutionConfig = () => {
     $("#file-upload").click();
 };
 
-// testPluginPresence();
-// //update UI to hide Simulate and Upload Buttons if not connected to the plugin
+// update UI to hide Simulate and Upload Buttons if not connected to the plugin
 const testPluginPresence = () => {
     try {
         fetch("/simulator/trace.json", {

@@ -317,7 +317,7 @@ window.handleClickSimulate = () => {
                 formData.append("files", executionConfigFile.files[0], "simulator_config.json");
 
                 // Send the file to the simulator
-                fetch(window.location.host+"/simulate", {
+                fetch("/simulate", {
                     method: "POST",
                     body: formData,
                     mode: "no-cors",

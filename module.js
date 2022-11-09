@@ -263,26 +263,28 @@ const testPluginPresence = () => {
         fetch("/simulator/trace.json", {
             method: "HEAD",
             mode: "no-cors",
-        }).then((response) => {
-            if (response.status == 404) {
+        })
+            .then((response) => {
+                if (response.status == 404) {
+                    document.getElementById("simulate-button").style.display = "none";
+                    document.getElementById("upload-execution").style.display = "none";
+                }
+            })
+            .catch(() => {
+                console.log(
+                    "Simulate functionnalities not available due to plugin not being connected"
+                );
                 document.getElementById("simulate-button").style.display = "none";
                 document.getElementById("upload-execution").style.display = "none";
-            }
-        })
-        .catch(() => {
-            console.log(
-                "Simulate functionnalities not available due to plugin not being connected"
-            );
-            document.getElementById("simulate-button").style.display = "none";
-            document.getElementById("upload-execution").style.display = "none";
-        });
+            });
     } catch (error) {
         console.log("Simulate button not available due to plugin not being connected");
     }
 };
 testPluginPresence();
 
-//TODO : Get Request to the simulator to get the legdger file
+// TODO : Get Request to the simulator to download the legdger file
+// - And Replace the url with the content of the file
 const displayUrlFilesFromSimulator = () => {
     setConsoleValue(
         "log",
@@ -306,13 +308,13 @@ window.handleClickSimulate = () => {
         compileAS("deployer", "deployer", false, firstCompileOutput).then(
             (outputs) => {
                 // Create the compiled file to the simulator
-                const Scfile = new File([outputs["deployer.wasm"]], "main.wasm", {
+                const scFile = new File([outputs["deployer.wasm"]], "main.wasm", {
                     type: "application/wasm",
                 });
                 // Create the form data
                 const formData = new FormData();
                 //Adding wasm file to the form data
-                formData.append("files", Scfile, "main.wasm");
+                formData.append("files", scFile, "main.wasm");
                 //Adding Configuration file to the form data
                 formData.append("files", executionConfigFile.files[0], "simulator_config.json");
 
@@ -322,7 +324,6 @@ window.handleClickSimulate = () => {
                     body: formData,
                     mode: "no-cors",
                 })
-                    //Todo handle the response, maybe the response will be asynchrone and take time to be ready
                     .then((response) => response.text())
                     .then((text) => {
                         setConsoleValue(
@@ -334,7 +335,7 @@ window.handleClickSimulate = () => {
                         setConsoleValue("log", text);
                         scrollDownToConsole();
                     })
-                    .then(displayUrlFilesFromSimulator)
+                    .then(displayUrlFilesFromSimulator);
             },
             (error) => {
                 setConsoleValue(

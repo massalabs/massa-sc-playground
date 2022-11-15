@@ -180,3 +180,6 @@ h2 {
 .icon-bar a:hover {
     background-color: #000;
 }
+.website-file-input {
+    display: none;
+}

@@ -1,6 +1,7 @@
 import asc from "assemblyscript/asc";
 import parserTypeScript from "parser-typescript";
 import { Massa } from "./libs/massa-as-sdk.js";
+import { deployerContract } from "./libs/deployer.js";
 import { Envy } from "./libs/unittest.js";
 import { initMirrorContractValue, initMirrorTestValue } from "./libs/init-values.js";
 
@@ -144,7 +145,12 @@ function scrollDownToConsole() {
 
 // Compile Smart Contract
 const outputs = {};
-window.compileAS = async function (inputFile, outputName, isWriteCompiled) {
+window.compileAS = async function (
+    inputFile,
+    outputName,
+    isWriteCompiled,
+    firstCompileOutput = undefined
+) {
     if (isWriteCompiled) {
         setConsoleValue(
             "log",
@@ -162,12 +168,15 @@ window.compileAS = async function (inputFile, outputName, isWriteCompiled) {
         .getValue()
         .replace("@massalabs/massa-as-sdk", "./@massalabs/massa-as-sdk.ts");
 
-    const files = {
+    let files = {
         "main.ts": contractFormatted,
         "@massalabs/massa-as-sdk.ts": Massa,
         "allFiles.ts": Envy + contractFormatted + testFormatted,
     };
-
+    if (firstCompileOutput) {
+        const b64Str = btoa(firstCompileOutput["main.wasm"]);
+        files = { ...files, "deployer.ts": deployerContract(b64Str) };
+    }
     const { error, stdout, stderr } = await asc.main(
         [
             inputFile + ".ts",
@@ -253,6 +262,10 @@ window.exportFile = (fileName) => {
 };
 
 window.handleClickExportCompiled = () => {
+    //If contract is not Compiled, Compile Smart Contract before exporting
+    if (outputs["main.wasm"] == null) {
+        compileAS("main", "main", false);
+    }
     exportFile("main.wasm");
 };
 
@@ -269,6 +282,102 @@ window.handleClickCompile = () => {
 window.handleClickClear = () => {
     setConsoleValue("clear", "");
 };
+
+window.handleClickUploadExecutionConfig = () => {
+    $("#file-upload").click();
+};
+
+// update UI to hide Simulate and Upload Buttons if not connected to the plugin
+const testPluginPresence = () => {
+    try {
+        fetch("/simulator/trace.json", {
+            method: "HEAD",
+            mode: "no-cors",
+        })
+            .then((response) => {
+                if (response.status == 404) {
+                    document.getElementById("simulate-button").style.display = "none";
+                    document.getElementById("upload-execution").style.display = "none";
+                }
+            })
+            .catch(() => {
+                console.log(
+                    "Simulate functionnalities not available due to plugin not being connected"
+                );
+                document.getElementById("simulate-button").style.display = "none";
+                document.getElementById("upload-execution").style.display = "none";
+            });
+    } catch (error) {
+        console.log("Simulate button not available due to plugin not being connected");
+    }
+};
+testPluginPresence();
+
+// TODO : Get Request to the simulator to download the legdger file
+// - And Replace the url with the content of the file
+const displayUrlFilesFromSimulator = () => {
+    setConsoleValue(
+        "log",
+        ` <br><br> ****************************
+    SIMULATION LEDGER and TRACE RESULT 
+    **************************** <br><br>
+    ${window.location.host}/simulator/ledger.json
+    <br>
+    ${window.location.host}/simulator/trace.json`
+    );
+    scrollDownToConsole();
+};
+
+window.handleClickSimulate = () => {
+    // Trigger the input file explorer
+    const executionConfigFile = document.getElementById("file-upload");
+
+    // Start Export Compiled File and send the file to the simulator
+    // Compile the contract
+    compileAS("main", "main", false).then((firstCompileOutput) => {
+        compileAS("deployer", "deployer", false, firstCompileOutput).then(
+            (outputs) => {
+                // Create the compiled file to the simulator
+                const scFile = new File([outputs["deployer.wasm"]], "main.wasm", {
+                    type: "application/wasm",
+                });
+                // Create the form data
+                const formData = new FormData();
+                //Adding wasm file to the form data
+                formData.append("files", scFile, "main.wasm");
+                //Adding Configuration file to the form data
+                formData.append("files", executionConfigFile.files[0], "simulator_config.json");
+
+                // Send the file to the simulator
+                fetch("/simulate", {
+                    method: "POST",
+                    body: formData,
+                    mode: "no-cors",
+                })
+                    .then((response) => response.text())
+                    .then((text) => {
+                        setConsoleValue(
+                            "log",
+                            ` <br><br> ****************************
+            SIMULATION Processing
+            **************************** <br><br>`
+                        );
+                        setConsoleValue("log", text);
+                        scrollDownToConsole();
+                    })
+                    .then(displayUrlFilesFromSimulator);
+            },
+            (error) => {
+                setConsoleValue(
+                    "error",
+                    "Uploading Contract to simulator failed : " + error.message
+                );
+                setConsoleValue("error", stderr.toString());
+            }
+        );
+    });
+};
+
 window.handleClickFormat = () => formatCode([mirrorContract, mirrorTest]);
 
 window.handleClickDiscard = () => {
